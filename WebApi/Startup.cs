@@ -21,13 +21,15 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<StoreContext>(opt => opt.UseInMemoryDatabase("WebStore"));
+            services.AddDbContext<StoreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("WebStore")));
+            services.BuildServiceProvider().GetService<StoreContext>().Database.Migrate();
+
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "JJ Web Store API", Version = "v1" });
+                c.SwaggerDoc("v1", new Info { Title = "ZC Tea Web Store API", Version = "v1" });
             });
         }
 
@@ -51,7 +53,8 @@ namespace WebApi
             // specifying the Swagger JSON endpoint.
             app.UseSwaggerUI(c =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "JJ Web Store API v1");
+                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZC Tea Web Store API v1");
+                c.RoutePrefix = string.Empty;
             });
 
             app.UseHttpsRedirection();
