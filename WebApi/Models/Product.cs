@@ -1,41 +1,30 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WebApi.Models
 {
-    public class Product
+    public partial class Product
     {
-        [Key]
+        public Product()
+        {
+            ProductFunction = new HashSet<ProductFunction>();
+        }
+
         public int Id { get; set; }
-
+        public int? AvatarImageId { get; set; }
         public string Name { get; set; }
-
         public string LongName { get; set; }
-
         public string Description { get; set; }
-
         public string ProductNumber { get; set; }
-
         public string Ingredient { get; set; }
-
         public string Type { get; set; }
-
-        public double Price { get; set; }
-
+        public decimal Price { get; set; }
         public string Volume { get; set; }
-
         public string Origin { get; set; }
-
         public string Producer { get; set; }
-
         public string Highlight { get; set; }
+        public bool? IsActive { get; set; }
 
-        public bool IsActive { get; set; }
-
-        public Image Avatar { get; set; }
-
-        public IList<ProductImage> ProductImages { get; set; }
-
-        public ICollection<TeaFunction> TeaFunctions { get; set; }
+        public virtual ICollection<ProductFunction> ProductFunction { get; set; }
     }
 }

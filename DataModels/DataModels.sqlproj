@@ -62,10 +62,10 @@
     <Folder Include="Properties" />
   </ItemGroup>
   <ItemGroup>
-    <Build Include="Products.sql" />
-    <Build Include="Images.sql" />
-    <Build Include="ProductImageRels.sql" />
-    <Build Include="ProductFunctions.sql" />
+    <Build Include="Product.sql" />
+    <Build Include="Image.sql" />
+    <Build Include="ProductImageRel.sql" />
+    <Build Include="ProductFunction.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModels.Debug.publish.xml" />

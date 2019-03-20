@@ -1,4 +1,4 @@
-﻿CREATE TABLE [dbo].[Products] (
+﻿CREATE TABLE [dbo].[Product] (
 	[Id] [int] IDENTITY(1,1) NOT NULL,
 	[AvatarImageId] [int] NULL,
 	[Name] [varchar](50) NULL,
@@ -13,5 +13,5 @@
 	[Producer] [varchar](50) NULL,
 	[Highlight] [varchar](200) NULL,
 	[IsActive] [bit] NOT NULL DEFAULT 1
-	CONSTRAINT [PK_Products] PRIMARY KEY NONCLUSTERED ( [Id] )
+	CONSTRAINT [PK_Product] PRIMARY KEY NONCLUSTERED ( [Id] )
 );

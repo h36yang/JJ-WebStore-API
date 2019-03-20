@@ -12,9 +12,9 @@ namespace WebApi.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly StoreContext _context;
+        private readonly WebStoreContext _context;
 
-        public ProductsController(StoreContext context)
+        public ProductsController(WebStoreContext context)
         {
             _context = context;
         }
@@ -23,22 +23,22 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
-            return await _context.Products.ToListAsync();
+            return await _context.Product.ToListAsync();
         }
 
         // GET: api/Products/Active
         [HttpGet("Active")]
         public async Task<ActionResult<IEnumerable<Product>>> GetActiveProducts()
         {
-            var items = await _context.Products.ToListAsync();
-            return items.Where(i => i.IsActive).ToList();
+            var items = await _context.Product.ToListAsync();
+            return items.Where(i => i.IsActive.Value).ToList();
         }
 
         // GET: api/Products/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {
-            var item = await _context.Products.FindAsync(id);
+            var item = await _context.Product.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -50,11 +50,7 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Product>> AddProduct(Product item)
         {
-            if (!item.IsActive)
-            {
-                item.IsActive = true;
-            }
-            _context.Products.Add(item);
+            _context.Product.Add(item);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetProduct), new { id = item.Id }, item);
@@ -79,7 +75,7 @@ namespace WebApi.Controllers
         [HttpDelete("{id}")]
         public async Task<ActionResult<Product>> DeleteProduct(int id)
         {
-            var item = await _context.Products.FindAsync(id);
+            var item = await _context.Product.FindAsync(id);
 
             if (item == null)
             {

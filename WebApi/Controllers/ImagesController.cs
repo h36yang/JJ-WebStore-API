@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Linq;
 using WebApi.Models;
 
 namespace WebApi.Controllers
@@ -11,9 +12,9 @@ namespace WebApi.Controllers
     [ApiController]
     public class ImagesController : ControllerBase
     {
-        private readonly StoreContext _context;
+        private readonly WebStoreContext _context;
 
-        public ImagesController(StoreContext context)
+        public ImagesController(WebStoreContext context)
         {
             _context = context;
         }
@@ -22,14 +23,14 @@ namespace WebApi.Controllers
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
-            return await _context.Images.ToListAsync();
+            return await _context.Image.ToListAsync();
         }
 
         // GET: api/Images/5
         [HttpGet("{id}")]
         public async Task<ActionResult<Image>> GetImage(int id)
         {
-            var item = await _context.Images.FindAsync(id);
+            var item = await _context.Image.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
@@ -41,10 +42,27 @@ namespace WebApi.Controllers
         [HttpPost]
         public async Task<ActionResult<Image>> AddImage(Image item)
         {
-            _context.Images.Add(item);
+            _context.Image.Add(item);
             await _context.SaveChangesAsync();
 
             return CreatedAtAction(nameof(GetImage), new { id = item.Id }, item);
+        }
+
+        // GET: api/Images/ByProduct/5
+        [HttpGet("ByProduct/{productId}")]
+        public async Task<ActionResult<IEnumerable<ProductImageRel>>> GetProductImageRel(int productId)
+        {
+            return await _context.ProductImageRel.Where(x => x.ProductId == productId).ToListAsync();
+        }
+
+        // POST: api/Images/AssignToProduct
+        [HttpPost("AssignToProduct")]
+        public async Task<ActionResult<IEnumerable<ProductImageRel>>> AssignImageToProduct(ProductImageRel item)
+        {
+            _context.ProductImageRel.Add(item);
+            await _context.SaveChangesAsync();
+
+            return CreatedAtAction(nameof(GetProductImageRel), new { productId = item.ProductId }, item);
         }
     }
 }

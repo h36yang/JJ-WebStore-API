@@ -1,15 +1,11 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
 
 namespace WebApi.Models
 {
-    public class Image
+    public partial class Image
     {
-        [Key]
         public int Id { get; set; }
-
         public string Url { get; set; }
-
-        public IList<ProductImage> ProductImages { get; set; }
     }
 }
