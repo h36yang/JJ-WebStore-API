@@ -22,7 +22,6 @@ namespace WebApi
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<StoreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("WebStore")));
-            services.BuildServiceProvider().GetService<StoreContext>().Database.Migrate();
 
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
