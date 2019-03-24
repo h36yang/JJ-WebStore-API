@@ -1,12 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApi.Models;
+using WebApi.Models.Database;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
@@ -20,6 +22,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Products
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
         {
@@ -27,6 +30,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Products/Active
+        [AllowAnonymous]
         [HttpGet("Active")]
         public async Task<ActionResult<IEnumerable<Product>>> GetActiveProducts()
         {
@@ -35,6 +39,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Products/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Product>> GetProduct(int id)
         {

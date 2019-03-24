@@ -1,8 +1,6 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace WebApi.Models
+namespace WebApi.Models.Database
 {
     public partial class WebStoreContext : DbContext
     {
@@ -19,15 +17,7 @@ namespace WebApi.Models
         public virtual DbSet<Product> Product { get; set; }
         public virtual DbSet<ProductFunction> ProductFunction { get; set; }
         public virtual DbSet<ProductImageRel> ProductImageRel { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
-            if (!optionsBuilder.IsConfigured)
-            {
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
-                optionsBuilder.UseSqlServer("Server=(localdb)\\MSSQLLocalDB;Database=WebStore;Trusted_Connection=True;");
-            }
-        }
+        public virtual DbSet<User> User { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -112,6 +102,34 @@ namespace WebApi.Models
             {
                 entity.HasKey(e => new { e.ProductId, e.ImageId })
                     .ForSqlServerIsClustered(false);
+            });
+
+            modelBuilder.Entity<User>(entity =>
+            {
+                entity.HasKey(e => e.Id)
+                    .ForSqlServerIsClustered(false);
+
+                entity.HasIndex(e => e.Username)
+                    .HasName("NK_User")
+                    .IsUnique();
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.IsAdmin)
+                    .IsRequired()
+                    .HasDefaultValueSql("((0))");
+
+                entity.Property(e => e.Password)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+
+                entity.Property(e => e.Username)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
             });
         }
     }

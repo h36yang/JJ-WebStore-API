@@ -66,6 +66,7 @@
     <Build Include="Image.sql" />
     <Build Include="ProductImageRel.sql" />
     <Build Include="ProductFunction.sql" />
+    <Build Include="User.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModels.Debug.publish.xml" />

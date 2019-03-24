@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using WebApi.Models;
+using WebApi.Models.Database;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
+    [Authorize]
     [Produces("application/json")]
     [Route("api/[controller]")]
     [ApiController]
@@ -20,6 +22,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Images
+        [AllowAnonymous]
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Image>>> GetImages()
         {
@@ -27,6 +30,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Images/5
+        [AllowAnonymous]
         [HttpGet("{id}")]
         public async Task<ActionResult<Image>> GetImage(int id)
         {
@@ -49,6 +53,7 @@ namespace WebApi.Controllers
         }
 
         // GET: api/Images/ByProduct/5
+        [AllowAnonymous]
         [HttpGet("ByProduct/{productId}")]
         public async Task<ActionResult<IEnumerable<ProductImageRel>>> GetProductImageRel(int productId)
         {
