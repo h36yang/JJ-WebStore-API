@@ -8,7 +8,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.Swagger;
-using System.Collections.Generic;
 using System.Text;
 using WebApi.Helpers;
 using WebApi.Models.Database;

@@ -67,9 +67,13 @@
     <Build Include="ProductImageRel.sql" />
     <Build Include="ProductFunction.sql" />
     <Build Include="User.sql" />
+    <Build Include="ProductCategory.sql" />
   </ItemGroup>
   <ItemGroup>
     <None Include="DataModels.Debug.publish.xml" />
     <None Include="DataModels.Release.publish.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PostDeploy Include="ProductCategory.PostDeployment.sql" />
   </ItemGroup>
 </Project>

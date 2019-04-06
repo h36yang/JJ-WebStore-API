@@ -3,10 +3,10 @@ using System.Collections.Generic;
 
 namespace WebApi.Models.Database
 {
-    public partial class Image
+    public partial class ProductCategory
     {
         public int Id { get; set; }
         public string Name { get; set; }
-        public byte[] Data { get; set; }
+        public bool? IsActive { get; set; }
     }
 }

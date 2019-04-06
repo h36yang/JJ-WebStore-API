@@ -15,9 +15,11 @@ namespace WebApi.Models.Database
 
         public virtual DbSet<Image> Image { get; set; }
         public virtual DbSet<Product> Product { get; set; }
+        public virtual DbSet<ProductCategory> ProductCategory { get; set; }
         public virtual DbSet<ProductFunction> ProductFunction { get; set; }
         public virtual DbSet<ProductImageRel> ProductImageRel { get; set; }
         public virtual DbSet<User> User { get; set; }
+
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -25,8 +27,15 @@ namespace WebApi.Models.Database
 
             modelBuilder.Entity<Image>(entity =>
             {
-                entity.Property(e => e.Url)
+                entity.HasIndex(e => e.Name)
+                    .HasName("NK_Image")
+                    .IsUnique();
+
+                entity.Property(e => e.Data).IsRequired();
+
+                entity.Property(e => e.Name)
                     .IsRequired()
+                    .HasMaxLength(50)
                     .IsUnicode(false);
             });
 
@@ -80,6 +89,25 @@ namespace WebApi.Models.Database
                     .IsUnicode(false);
             });
 
+            modelBuilder.Entity<ProductCategory>(entity =>
+            {
+                entity.HasKey(e => e.Id)
+                    .ForSqlServerIsClustered(false);
+
+                entity.HasIndex(e => e.Name)
+                    .HasName("NK_ProductCategory")
+                    .IsUnique();
+
+                entity.Property(e => e.IsActive)
+                    .IsRequired()
+                    .HasDefaultValueSql("((1))");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50)
+                    .IsUnicode(false);
+            });
+
             modelBuilder.Entity<ProductFunction>(entity =>
             {
                 entity.HasKey(e => e.Id)
@@ -116,10 +144,6 @@ namespace WebApi.Models.Database
                 entity.Property(e => e.IsActive)
                     .IsRequired()
                     .HasDefaultValueSql("((1))");
-
-                entity.Property(e => e.IsAdmin)
-                    .IsRequired()
-                    .HasDefaultValueSql("((0))");
 
                 entity.Property(e => e.Password)
                     .IsRequired()

@@ -1,5 +1,6 @@
 ﻿CREATE TABLE [dbo].[Product] (
 	[Id] [int] IDENTITY(1,1) NOT NULL,
+	[CategoryId] [int] NOT NULL,
 	[AvatarImageId] [int] NULL,
 	[Name] [varchar](50) NULL,
 	[LongName] [varchar](500) NULL,

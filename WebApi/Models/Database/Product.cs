@@ -11,6 +11,7 @@ namespace WebApi.Models.Database
         }
 
         public int Id { get; set; }
+        public int CategoryId { get; set; }
         public int? AvatarImageId { get; set; }
         public string Name { get; set; }
         public string LongName { get; set; }

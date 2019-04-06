@@ -21,7 +21,7 @@ namespace WebApi.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate(string username, [FromBody] string password)
+        public IActionResult Authenticate(string username, string password)
         {
             User user = _userService.Authenticate(username, password);
 

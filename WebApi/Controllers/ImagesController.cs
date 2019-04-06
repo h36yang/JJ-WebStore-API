@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
-using System.Threading.Tasks;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using WebApi.Models.Database;
-using Microsoft.AspNetCore.Authorization;
 
 namespace WebApi.Controllers
 {
@@ -21,35 +23,50 @@ namespace WebApi.Controllers
             _context = context;
         }
 
-        // GET: api/Images
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<ActionResult<IEnumerable<Image>>> GetImages()
-        {
-            return await _context.Image.ToListAsync();
-        }
-
         // GET: api/Images/5
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Image>> GetImage(int id)
+        public async Task<IActionResult> GetImage(int id)
         {
             var item = await _context.Image.FindAsync(id);
             if (item == null)
             {
                 return NotFound();
             }
-            return item;
+            return File(item.Data, "image/jpeg");
         }
 
         // POST: api/Images
         [HttpPost]
-        public async Task<ActionResult<Image>> AddImage(Image item)
+        public async Task<IActionResult> UploadImage(string name, IFormFile file)
         {
-            _context.Image.Add(item);
-            await _context.SaveChangesAsync();
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                return BadRequest(new { message = "Must provide a name for the image" });
+            }
+            else if (file.Length <= 0)
+            {
+                return BadRequest(new { message = "File size is 0" });
+            }
+            else
+            {
+                using (var stream = new MemoryStream())
+                {
+                    await file.CopyToAsync(stream);
+                    var fileBytes = stream.ToArray();
 
-            return CreatedAtAction(nameof(GetImage), new { id = item.Id }, item);
+                    var imageItem = new Image()
+                    {
+                        Name = name,
+                        Data = fileBytes
+                    };
+                    _context.Image.Add(imageItem);
+                    await _context.SaveChangesAsync();
+
+                    imageItem.Data = null;
+                    return CreatedAtAction(nameof(GetImage), new { id = imageItem.Id }, imageItem);
+                }
+            }
         }
 
         // GET: api/Images/ByProduct/5

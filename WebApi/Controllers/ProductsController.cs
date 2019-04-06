@@ -34,8 +34,16 @@ namespace WebApi.Controllers
         [HttpGet("Active")]
         public async Task<ActionResult<IEnumerable<Product>>> GetActiveProducts()
         {
-            var items = await _context.Product.ToListAsync();
-            return items.Where(i => i.IsActive.Value).ToList();
+            return await _context.Product.Where(i => i.IsActive.Value).ToListAsync();
+        }
+
+        // GET: api/Products/ByCategory
+        [AllowAnonymous]
+        [HttpGet("ByCategory/{categoryId}")]
+        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryId)
+        {
+            // Assumption: only return active products
+            return await _context.Product.Where(i => i.IsActive.Value && i.CategoryId == categoryId).ToListAsync();
         }
 
         // GET: api/Products/5
