@@ -32,6 +32,13 @@ namespace WebApi.Services
 
         public User Register(Models.Database.User user)
         {
+            if (_context.User.Any(x => x.Username == user.Username))
+            {
+                return null;
+            }
+
+            user.IsAdmin = false; // Doesn't matter what gets passed in, we don't allow creating Admin user here
+            user.IsActive = true; // Doesn't matter what gets passed in, new user should be active
             _context.User.Add(user);
             _context.SaveChanges();
             return Authenticate(user.Username, user.Password);

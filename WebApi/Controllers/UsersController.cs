@@ -38,6 +38,10 @@ namespace WebApi.Controllers
         public IActionResult Register([FromBody] Models.Database.User user)
         {
             User newUser = _userService.Register(user);
+            if (newUser == null)
+            {
+                return BadRequest(new { message = "Username already exists." });
+            }
             return CreatedAtAction(nameof(GetUser), new { id = user.Id }, newUser);
         }
 

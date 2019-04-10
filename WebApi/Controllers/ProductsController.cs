@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using WebApi.Models.Database;
+using WebApi.Models;
 
 namespace WebApi.Controllers
 {
@@ -14,9 +14,9 @@ namespace WebApi.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly WebStoreContext _context;
+        private readonly Models.Database.WebStoreContext _context;
 
-        public ProductsController(WebStoreContext context)
+        public ProductsController(Models.Database.WebStoreContext context)
         {
             _context = context;
         }
@@ -24,7 +24,7 @@ namespace WebApi.Controllers
         // GET: api/Products
         [AllowAnonymous]
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetAllProducts()
+        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetAllProducts()
         {
             return await _context.Product.ToListAsync();
         }
@@ -32,7 +32,7 @@ namespace WebApi.Controllers
         // GET: api/Products/Active
         [AllowAnonymous]
         [HttpGet("Active")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetActiveProducts()
+        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetActiveProducts()
         {
             return await _context.Product.Where(i => i.IsActive.Value).ToListAsync();
         }
@@ -40,7 +40,7 @@ namespace WebApi.Controllers
         // GET: api/Products/ByCategory
         [AllowAnonymous]
         [HttpGet("ByCategory/{categoryId}")]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProductsByCategory(int categoryId)
+        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetProductsByCategory(int categoryId)
         {
             // Assumption: only return active products
             return await _context.Product.Where(i => i.IsActive.Value && i.CategoryId == categoryId).ToListAsync();
@@ -49,19 +49,25 @@ namespace WebApi.Controllers
         // GET: api/Products/5
         [AllowAnonymous]
         [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
+        public async Task<ActionResult<Models.Database.Product>> GetProduct(int id)
         {
-            var item = await _context.Product.FindAsync(id);
-            if (item == null)
+            Models.Database.Product baseProduct = await _context.Product.FindAsync(id);
+            if (baseProduct == null)
             {
                 return NotFound();
             }
-            return item;
+
+            List<Models.Database.ProductImageRel> imageRel = await _context.ProductImageRel.Where(x => x.ProductId == id).ToListAsync();
+            var product = new Product(baseProduct)
+            {
+                ProductImageIds = imageRel.Select(r => r.ImageId).ToList()
+            };
+            return product;
         }
 
         // POST: api/Products
         [HttpPost]
-        public async Task<ActionResult<Product>> AddProduct(Product item)
+        public async Task<ActionResult<Models.Database.Product>> AddProduct(Models.Database.Product item)
         {
             _context.Product.Add(item);
             await _context.SaveChangesAsync();
@@ -71,7 +77,7 @@ namespace WebApi.Controllers
 
         // PUT: api/Products/5
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product item)
+        public async Task<IActionResult> UpdateProduct(int id, Models.Database.Product item)
         {
             if (id != item.Id)
             {
@@ -86,7 +92,7 @@ namespace WebApi.Controllers
 
         // DELETE: api/Products/5
         [HttpDelete("{id}")]
-        public async Task<ActionResult<Product>> DeleteProduct(int id)
+        public async Task<ActionResult<Models.Database.Product>> DeleteProduct(int id)
         {
             var item = await _context.Product.FindAsync(id);
 
