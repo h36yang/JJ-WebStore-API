@@ -27,10 +27,6 @@ namespace WebApi.Models.Database
 
             modelBuilder.Entity<Image>(entity =>
             {
-                entity.HasIndex(e => e.Name)
-                    .HasName("NK_Image")
-                    .IsUnique();
-
                 entity.Property(e => e.Data).IsRequired();
 
                 entity.Property(e => e.Name)

@@ -2,10 +2,12 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApi.Models;
 using WebApi.Models.Database;
 
 namespace WebApi.Controllers
@@ -38,15 +40,17 @@ namespace WebApi.Controllers
 
         // POST: api/Images
         [HttpPost]
+        [SwaggerResponse(StatusCodes.Status201Created, "The image was uploaded successfully", typeof(Image))]
+        [SwaggerResponse(StatusCodes.Status400BadRequest, "Missing image name or file data", typeof(ErrorResponse))]
         public async Task<IActionResult> UploadImage(string name, IFormFile file)
         {
             if (string.IsNullOrWhiteSpace(name))
             {
-                return BadRequest(new { message = "Must provide a name for the image" });
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, "Must provide a name for the image"));
             }
             else if (file.Length <= 0)
             {
-                return BadRequest(new { message = "File size is 0" });
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, "File size is 0"));
             }
             else
             {
