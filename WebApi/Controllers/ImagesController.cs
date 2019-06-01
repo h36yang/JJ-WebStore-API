@@ -28,12 +28,14 @@ namespace WebApi.Controllers
         // GET: api/Images/5
         [AllowAnonymous]
         [HttpGet("{id}")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The image was retrieved successfully", typeof(FileContentResult))]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The image ID was not found", typeof(ErrorResponse))]
         public async Task<IActionResult> GetImage(int id)
         {
             var item = await _context.Image.FindAsync(id);
             if (item == null)
             {
-                return NotFound();
+                return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Image ID {id} was not found"));
             }
             return File(item.Data, "image/jpeg");
         }
@@ -87,7 +89,6 @@ namespace WebApi.Controllers
         {
             _context.ProductImageRel.Add(item);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetProductImageRel), new { productId = item.ProductId }, item);
         }
     }

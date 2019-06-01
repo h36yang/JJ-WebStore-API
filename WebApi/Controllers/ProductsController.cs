@@ -52,9 +52,9 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The product was retrieved successfully", typeof(Models.Database.Product))]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]
-        public async Task<ActionResult<Models.Database.Product>> GetProduct(int id)
+        public async Task<IActionResult> GetProduct(int id)
         {
-            Models.Database.Product baseProduct = await _context.Product.FindAsync(id);
+            var baseProduct = await _context.Product.FindAsync(id);
             if (baseProduct == null)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
@@ -65,7 +65,7 @@ namespace WebApi.Controllers
             {
                 ProductImageIds = imageRel.Select(r => r.ImageId).ToList()
             };
-            return product;
+            return Ok(product);
         }
 
         // POST: api/Products
@@ -75,7 +75,6 @@ namespace WebApi.Controllers
         {
             _context.Product.Add(item);
             await _context.SaveChangesAsync();
-
             return CreatedAtAction(nameof(GetProduct), new { id = item.Id }, item);
         }
 
@@ -92,7 +91,6 @@ namespace WebApi.Controllers
 
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
@@ -103,7 +101,6 @@ namespace WebApi.Controllers
         public async Task<IActionResult> ActivateProduct(int id)
         {
             var item = await _context.Product.FindAsync(id);
-
             if (item == null)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
@@ -112,7 +109,6 @@ namespace WebApi.Controllers
             item.IsActive = true;
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
 
@@ -123,7 +119,6 @@ namespace WebApi.Controllers
         public async Task<IActionResult> DeleteProduct(int id)
         {
             var item = await _context.Product.FindAsync(id);
-
             if (item == null)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
@@ -132,7 +127,6 @@ namespace WebApi.Controllers
             item.IsActive = false;
             _context.Entry(item).State = EntityState.Modified;
             await _context.SaveChangesAsync();
-
             return NoContent();
         }
     }
