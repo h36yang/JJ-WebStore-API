@@ -25,6 +25,7 @@ namespace WebApi.Controllers
 
         // GET: api/Products
         [HttpGet]
+        [SwaggerResponse(StatusCodes.Status200OK, "All products were retrieved successfully")]
         public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetAllProducts()
         {
             return await _context.Product.ToListAsync();
@@ -33,6 +34,7 @@ namespace WebApi.Controllers
         // GET: api/Products/Active
         [AllowAnonymous]
         [HttpGet("Active")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The active products were retrieved successfully")]
         public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetActiveProducts()
         {
             return await _context.Product.Where(i => i.IsActive.Value).ToListAsync();
@@ -41,8 +43,17 @@ namespace WebApi.Controllers
         // GET: api/Products/ByCategory
         [AllowAnonymous]
         [HttpGet("ByCategory/{categoryId}")]
+        [SwaggerResponse(StatusCodes.Status200OK, "The products by category were retrieved successfully")]
+        [SwaggerResponse(StatusCodes.Status404NotFound, "The category ID was not found", typeof(ErrorResponse))]
         public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetProductsByCategory(int categoryId)
         {
+            // Check if Category ID is valid
+            var category = await _context.ProductCategory.FindAsync(categoryId);
+            if (category == null)
+            {
+                return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Category ID {categoryId} was not found"));
+            }
+
             // Assumption: only return active products
             return await _context.Product.Where(i => i.IsActive.Value && i.CategoryId == categoryId).ToListAsync();
         }
@@ -50,9 +61,9 @@ namespace WebApi.Controllers
         // GET: api/Products/5
         [AllowAnonymous]
         [HttpGet("{id}")]
-        [SwaggerResponse(StatusCodes.Status200OK, "The product was retrieved successfully", typeof(Models.Database.Product))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The product was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]
-        public async Task<IActionResult> GetProduct(int id)
+        public async Task<ActionResult<Models.Database.Product>> GetProduct(int id)
         {
             var baseProduct = await _context.Product.FindAsync(id);
             if (baseProduct == null)
@@ -65,12 +76,12 @@ namespace WebApi.Controllers
             {
                 ProductImageIds = imageRel.Select(r => r.ImageId).ToList()
             };
-            return Ok(product);
+            return product;
         }
 
         // POST: api/Products
         [HttpPost]
-        [SwaggerResponse(StatusCodes.Status201Created, "The product was created successfully", typeof(Models.Database.Product))]
+        [SwaggerResponse(StatusCodes.Status201Created, "The product was created successfully")]
         public async Task<ActionResult<Models.Database.Product>> AddProduct(Models.Database.Product item)
         {
             _context.Product.Add(item);
