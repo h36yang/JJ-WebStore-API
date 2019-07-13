@@ -30,17 +30,24 @@ namespace WebApi.Services
             _mapper = mapper;
         }
 
-        public async Task<UserVM> RegisterAsync(UserVM user)
+        public async Task<UserVM> RegisterAsync(string username, string password)
         {
-            if (await _userRepository.ExistAsync(x => x.Username == user.Username))
+            if (await _userRepository.ExistAsync(x => x.Username == username))
             {
                 return null;
             }
 
-            user.IsAdmin = false; // Doesn't matter what gets passed in, we don't allow creating Admin user here
-            user.IsActive = true; // Doesn't matter what gets passed in, new user should be active
-            await _userRepository.AddAsync(_mapper.Map<User>(user));
-            return await AuthenticateAsync(user.Username, user.Password);
+            var dbUser = new User()
+            {
+                Username = username,
+                Password = password
+            };
+            int result = await _userRepository.AddAsync(dbUser);
+            if (result <= 0)
+            {
+                throw new ApplicationException("Failed to register user in the database");
+            }
+            return await AuthenticateAsync(dbUser.Username, dbUser.Password);
         }
 
         public async Task<UserVM> AuthenticateAsync(string username, string password)
@@ -67,7 +74,7 @@ namespace WebApi.Services
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
 
-            UserVM user = _mapper.Map<UserVM>(dbUser);
+            UserVM user = _mapper.Map<User, UserVM>(dbUser);
             user.Token = tokenHandler.WriteToken(token);
             user.Password = null; // remove password before returning
             return user;
@@ -81,7 +88,7 @@ namespace WebApi.Services
                 return null;
             }
             dbUser.Password = null; // remove password before returning
-            return _mapper.Map<UserVM>(dbUser);
+            return _mapper.Map<User, UserVM>(dbUser);
         }
 
         public async Task<List<UserVM>> GetAllAsync()
@@ -90,7 +97,7 @@ namespace WebApi.Services
             return dbUsers.Select(x =>
             {
                 x.Password = null; // remove password before returning
-                return _mapper.Map<UserVM>(x);
+                return _mapper.Map<User, UserVM>(x);
             }).ToList();
         }
     }

@@ -6,7 +6,7 @@ namespace WebApi.Services.Interfaces
 {
     public interface IUserService
     {
-        Task<UserVM> RegisterAsync(UserVM user);
+        Task<UserVM> RegisterAsync(string username, string password);
 
         Task<UserVM> AuthenticateAsync(string username, string password);
 

@@ -9,27 +9,12 @@ namespace WebApi.ViewModelMappers
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserVM>()
-                .IgnoreAllNonExisting()
-                .ReverseMap()
-                .IgnoreAllNonExisting();
-
-            CreateMap<Image, ImageVM>()
-                .IgnoreAllNonExisting()
-                .ReverseMap()
-                .IgnoreAllNonExisting();
-
-            CreateMap<ProductFunction, ProductFunctionVM>()
-                .IgnoreAllNonExisting()
-                .ReverseMap()
-                .IgnoreAllNonExisting();
-
             CreateMap<Product, ProductVM>()
                 .IgnoreAllNonExisting()
-                .ForMember(dest => dest.ProductImageIds, member => member.MapFrom(src => src.ProductImages.Select(x => x.ImageId)))
+                .ForMember(dest => dest.ProductImageIds, opt => opt.MapFrom(src => src.ProductImages.Select(x => x.ImageId).ToList()))
                 .ReverseMap()
                 .IgnoreAllNonExisting()
-                .ForPath(src => src.ProductImages, member => member.MapFrom(dest => dest.ProductImageIds.Select(x => new ProductImage { ProductId = dest.Id, ImageId = x })));
+                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImageIds.Select(x => new ProductImage { ProductId = src.Id, ImageId = x }).ToList()));
         }
     }
 }

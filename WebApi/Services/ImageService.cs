@@ -28,7 +28,7 @@ namespace WebApi.Services
             {
                 return null;
             }
-            return _mapper.Map<ImageVM>(dbImage);
+            return _mapper.Map<Image, ImageVM>(dbImage);
         }
 
         public async Task<ImageVM> UploadAsync(string name, IFormFile file)
@@ -38,15 +38,15 @@ namespace WebApi.Services
                 await file.CopyToAsync(stream);
                 var fileBytes = stream.ToArray();
 
-                var imageItem = new Image()
+                var dbImage = new Image()
                 {
                     Name = name,
                     Data = fileBytes
                 };
-                await _imageRepository.AddAsync(imageItem);
+                await _imageRepository.AddAsync(dbImage);
 
-                imageItem.Data = null; // remove image data before returning
-                return _mapper.Map<ImageVM>(imageItem);
+                dbImage.Data = null; // remove image data before returning
+                return _mapper.Map<Image, ImageVM>(dbImage);
             }
         }
     }

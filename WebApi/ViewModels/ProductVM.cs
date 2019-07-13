@@ -28,6 +28,8 @@ namespace WebApi.ViewModels
 
         public bool IsActive { get; set; }
 
+        public int CategoryId { get; set; }
+
         public int? AvatarId { get; set; }
 
         public List<int> ProductImageIds { get; set; }

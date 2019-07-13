@@ -45,14 +45,19 @@ namespace WebApi.Controllers
         [HttpPost("register")]
         [SwaggerResponse(StatusCodes.Status201Created, "The user was registered successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The username already existed", typeof(ErrorResponse))]
-        public async Task<ActionResult<UserVM>> Register(UserVM user)
+        public async Task<ActionResult<UserVM>> Register(string username, string password)
         {
-            UserVM newUser = await _userService.RegisterAsync(user);
+            if (string.IsNullOrWhiteSpace(username) || string.IsNullOrWhiteSpace(password))
+            {
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, "Username or password is empty"));
+            }
+
+            UserVM newUser = await _userService.RegisterAsync(username, password);
             if (newUser == null)
             {
-                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, $"Username '{user.Username}' already exists"));
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, $"Username '{username}' already exists"));
             }
-            return CreatedAtAction(nameof(GetUser), new { id = user.Id }, newUser);
+            return CreatedAtAction(nameof(GetUser), new { id = newUser.Id }, newUser);
         }
 
         [HttpGet("{id}")]

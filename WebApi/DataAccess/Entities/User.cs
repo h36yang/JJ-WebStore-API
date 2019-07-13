@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AutoMapper;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApi.ViewModels;
 
 namespace WebApi.DataAccess.Entities
 {
+    [AutoMap(typeof(UserVM))]
     [Table("Users")]
     public class User : EntityBase
     {

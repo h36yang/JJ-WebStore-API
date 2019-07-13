@@ -23,8 +23,9 @@ namespace WebApi.Controllers
 
         // GET: api/Images/5
         [AllowAnonymous]
+        [ResponseCache(Duration = 3600)]
         [HttpGet("{id}")]
-        [SwaggerResponse(StatusCodes.Status200OK, "The image was retrieved successfully", typeof(FileContentResult))]
+        [SwaggerResponse(StatusCodes.Status200OK, "The image was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The image ID was not found", typeof(ErrorResponse))]
         public async Task<ActionResult<byte[]>> GetImage(int id)
         {

@@ -1,8 +1,11 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using AutoMapper;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using WebApi.ViewModels;
 
 namespace WebApi.DataAccess.Entities
 {
+    [AutoMap(typeof(ProductFunctionVM))]
     [Table("ProductFunctions")]
     public class ProductFunction : EntityBase
     {
@@ -19,8 +22,10 @@ namespace WebApi.DataAccess.Entities
 
         #region Relationships
 
+        [IgnoreMap]
         public int ProductId { get; set; }
 
+        [IgnoreMap]
         [ForeignKey(nameof(ProductId))]
         public Product Product { get; set; }
 
