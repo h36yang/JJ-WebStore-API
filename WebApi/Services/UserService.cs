@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using AutoMapper;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
@@ -6,51 +7,48 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using WebApi.DataAccess.Entities;
+using WebApi.DataAccess.Extensions;
+using WebApi.DataAccess.Repositories.Interfaces;
 using WebApi.Helpers;
-using WebApi.Models;
+using WebApi.Services.Interfaces;
+using WebApi.ViewModels;
 
 namespace WebApi.Services
 {
-    public interface IUserService
-    {
-        User Register(Models.Database.User user);
-        User Authenticate(string username, string password);
-        Models.Database.User GetById(int id);
-        IEnumerable<Models.Database.User> GetAll();
-    }
-
     public class UserService : IUserService
     {
         private readonly AppSettings _appSettings;
-        private readonly Models.Database.WebStoreContext _context;
+        private readonly IUserRepository _userRepository;
+        private readonly IMapper _mapper;
 
-        public UserService(IOptions<AppSettings> appSettings, Models.Database.WebStoreContext context)
+        public UserService(IOptions<AppSettings> appSettings, IUserRepository userRepository, IMapper mapper)
         {
             _appSettings = appSettings.Value;
-            _context = context;
+            _userRepository = userRepository;
+            _mapper = mapper;
         }
 
-        public User Register(Models.Database.User user)
+        public async Task<UserVM> RegisterAsync(UserVM user)
         {
-            if (_context.User.Any(x => x.Username == user.Username))
+            if (await _userRepository.ExistAsync(x => x.Username == user.Username))
             {
                 return null;
             }
 
             user.IsAdmin = false; // Doesn't matter what gets passed in, we don't allow creating Admin user here
             user.IsActive = true; // Doesn't matter what gets passed in, new user should be active
-            _context.User.Add(user);
-            _context.SaveChanges();
-            return Authenticate(user.Username, user.Password);
+            await _userRepository.AddAsync(_mapper.Map<User>(user));
+            return await AuthenticateAsync(user.Username, user.Password);
         }
 
-        public User Authenticate(string username, string password)
+        public async Task<UserVM> AuthenticateAsync(string username, string password)
         {
-            List<Models.Database.User> dbUsers = _context.User.Where(x => x.IsActive.Value).ToList();
-            var dbUser = dbUsers.SingleOrDefault(x => x.Username == username && x.Password == password);
+            User dbUser = await _userRepository.SingleOrDefaultAsync(x => x.IsActive && x.Username == username && x.Password == password);
 
             // return null if user not found
-            if (dbUser == null)
+            if (dbUser.IsObjectNull())
             {
                 return null;
             }
@@ -68,36 +66,32 @@ namespace WebApi.Services
                 SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
             };
             var token = tokenHandler.CreateToken(tokenDescriptor);
-            var user = new User(dbUser)
-            {
-                Token = tokenHandler.WriteToken(token),
-                Password = null // remove password before returning
-            };
 
+            UserVM user = _mapper.Map<UserVM>(dbUser);
+            user.Token = tokenHandler.WriteToken(token);
+            user.Password = null; // remove password before returning
             return user;
         }
 
-        public Models.Database.User GetById(int id)
+        public async Task<UserVM> GetByIdAsync(int id)
         {
-            var user = _context.User.Find(id);
-            if (user != null)
+            User dbUser = await _userRepository.GetAsync(id);
+            if (dbUser.IsObjectNull())
             {
-                // remove password before returning
-                user.Password = null;
+                return null;
             }
-            return user;
+            dbUser.Password = null; // remove password before returning
+            return _mapper.Map<UserVM>(dbUser);
         }
 
-        public IEnumerable<Models.Database.User> GetAll()
+        public async Task<List<UserVM>> GetAllAsync()
         {
-            List<Models.Database.User> users = _context.User.ToList();
-
-            // return users without passwords
-            return users.Select(x =>
+            List<User> dbUsers = await _userRepository.GetAllAsync();
+            return dbUsers.Select(x =>
             {
-                x.Password = null;
-                return x;
-            });
+                x.Password = null; // remove password before returning
+                return _mapper.Map<UserVM>(x);
+            }).ToList();
         }
     }
 }

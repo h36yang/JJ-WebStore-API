@@ -1,10 +1,12 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Net;
-using WebApi.Models;
+using WebApi.ViewModels;
 
 namespace WebApi.Controllers
 {
+    [AllowAnonymous]
     [Produces("application/json")]
     [Route("/[controller]")]
     [ApiController]

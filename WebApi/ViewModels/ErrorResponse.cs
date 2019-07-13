@@ -1,4 +1,4 @@
-﻿namespace WebApi.Models
+﻿namespace WebApi.ViewModels
 {
     public class ErrorResponse
     {

@@ -1,17 +1,23 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.Swagger;
 using System.Text;
+using WebApi.DataAccess;
+using WebApi.DataAccess.Repositories;
+using WebApi.DataAccess.Repositories.Interfaces;
 using WebApi.Helpers;
-using WebApi.Models.Database;
 using WebApi.Services;
+using WebApi.Services.Interfaces;
+using WebApi.ViewModelMappers;
 
 namespace WebApi
 {
@@ -27,7 +33,37 @@ namespace WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<WebStoreContext>(options => options.UseSqlServer(Configuration.GetConnectionString("WebStore")));
+            // Register the Options
+            services.AddOptions();
+
+            // Inject the repositories
+            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IImageRepository, ImageRepository>();
+            services.AddScoped<IProductRepository, ProductRepository>();
+            services.AddScoped<IProductImageRepository, ProductImageRepository>();
+            services.AddScoped<IProductFunctionRepository, ProductFunctionRepository>();
+            services.AddScoped<IProductCategoryRepository, ProductCategoryRepository>();
+
+            // Inject application services
+            services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IImageService, ImageService>();
+            services.AddScoped<IProductService, ProductService>();
+
+            // Register AutoMapper Profile
+            services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            // Register Health Checks
+            services
+                .AddHealthChecks()
+                .AddDbContextCheck<WebStoreContext>();
+
+            // Inject DB Context and Run Migrations
+            services.AddDbContext<WebStoreContext>(options => options
+                .UseSqlServer(Configuration.GetConnectionString("WebStore"))
+                .ConfigureWarnings(warnings => warnings.Default(WarningBehavior.Ignore)
+                                                       .Log(CoreEventId.IncludeIgnoredWarning)
+                                                       .Throw(RelationalEventId.QueryClientEvaluationWarning)));
+            services.BuildServiceProvider().GetService<WebStoreContext>().Database.Migrate();
 
             services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
@@ -72,15 +108,13 @@ namespace WebApi
                     ValidateAudience = false
                 };
             });
-
-            // configure DI for application services
-            services.AddScoped<IUserService, UserService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMapper autoMapper)
         {
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
+            app.UseHealthChecks("/health");
 
             if (env.IsDevelopment())
             {
@@ -91,6 +125,9 @@ namespace WebApi
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            // Configure AutoMapper
+            autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();

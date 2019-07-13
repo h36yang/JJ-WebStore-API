@@ -1,12 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
-using WebApi.Models;
+using WebApi.Services.Interfaces;
+using WebApi.ViewModels;
 
 namespace WebApi.Controllers
 {
@@ -16,28 +15,28 @@ namespace WebApi.Controllers
     [ApiController]
     public class ProductsController : ControllerBase
     {
-        private readonly Models.Database.WebStoreContext _context;
+        private readonly IProductService _productService;
 
-        public ProductsController(Models.Database.WebStoreContext context)
+        public ProductsController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
         // GET: api/Products
         [HttpGet]
         [SwaggerResponse(StatusCodes.Status200OK, "All products were retrieved successfully")]
-        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetAllProducts()
+        public async Task<ActionResult<List<ProductVM>>> GetAllProducts()
         {
-            return await _context.Product.ToListAsync();
+            return await _productService.GetAllAsync();
         }
 
         // GET: api/Products/Active
         [AllowAnonymous]
         [HttpGet("Active")]
         [SwaggerResponse(StatusCodes.Status200OK, "The active products were retrieved successfully")]
-        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetActiveProducts()
+        public async Task<ActionResult<List<ProductVM>>> GetActiveProducts()
         {
-            return await _context.Product.Where(i => i.IsActive.Value).ToListAsync();
+            return await _productService.GetAllActiveAsync();
         }
 
         // GET: api/Products/ByCategory
@@ -45,17 +44,14 @@ namespace WebApi.Controllers
         [HttpGet("ByCategory/{categoryId}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The products by category were retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The category ID was not found", typeof(ErrorResponse))]
-        public async Task<ActionResult<IEnumerable<Models.Database.Product>>> GetProductsByCategory(int categoryId)
+        public async Task<ActionResult<List<ProductVM>>> GetProductsByCategory(int categoryId)
         {
-            // Check if Category ID is valid
-            var category = await _context.ProductCategory.FindAsync(categoryId);
-            if (category == null)
+            List<ProductVM> products = await _productService.GetByCategoryIdAsync(categoryId);
+            if (products == null)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Category ID {categoryId} was not found"));
             }
-
-            // Assumption: only return active products
-            return await _context.Product.Where(i => i.IsActive.Value && i.CategoryId == categoryId).ToListAsync();
+            return products;
         }
 
         // GET: api/Products/5
@@ -63,45 +59,40 @@ namespace WebApi.Controllers
         [HttpGet("{id}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The product was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]
-        public async Task<ActionResult<Models.Database.Product>> GetProduct(int id)
+        public async Task<ActionResult<ProductVM>> GetProduct(int id)
         {
-            var baseProduct = await _context.Product.FindAsync(id);
-            if (baseProduct == null)
+            ProductVM product = await _productService.GetByIdAsync(id);
+            if (product == null)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
             }
-
-            List<Models.Database.ProductImageRel> imageRel = await _context.ProductImageRel.Where(x => x.ProductId == id).ToListAsync();
-            var product = new Product(baseProduct)
-            {
-                ProductImageIds = imageRel.Select(r => r.ImageId).ToList()
-            };
             return product;
         }
 
         // POST: api/Products
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status201Created, "The product was created successfully")]
-        public async Task<ActionResult<Models.Database.Product>> AddProduct(Models.Database.Product item)
+        public async Task<ActionResult<ProductVM>> AddProduct(ProductVM product)
         {
-            _context.Product.Add(item);
-            await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetProduct), new { id = item.Id }, item);
+            await _productService.AddAsync(product);
+            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
         }
 
         // PUT: api/Products/5
         [HttpPut("{id}")]
         [SwaggerResponse(StatusCodes.Status204NoContent, "The product was updated successfully", typeof(NoContentResult))]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "The product information does not match", typeof(ErrorResponse))]
-        public async Task<IActionResult> UpdateProduct(int id, Models.Database.Product item)
+        public async Task<IActionResult> UpdateProduct(int id, ProductVM product)
         {
-            if (id != item.Id)
+            if (product == null)
             {
-                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, $"Product ID {id} does not match ID in Product Data {item.Id}"));
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, $"Product Data is empty or invalid"));
             }
-
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
+            else if (id != product.Id)
+            {
+                return BadRequest(new ErrorResponse(StatusCodes.Status400BadRequest, $"Product ID {id} does not match ID in Product Data {product.Id}"));
+            }
+            await _productService.UpdateAsync(product);
             return NoContent();
         }
 
@@ -111,15 +102,11 @@ namespace WebApi.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]
         public async Task<IActionResult> ActivateProduct(int id)
         {
-            var item = await _context.Product.FindAsync(id);
-            if (item == null)
+            int result = await _productService.ActivateAsync(id);
+            if (result == -1)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
             }
-
-            item.IsActive = true;
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
             return NoContent();
         }
 
@@ -129,15 +116,11 @@ namespace WebApi.Controllers
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var item = await _context.Product.FindAsync(id);
-            if (item == null)
+            int result = await _productService.DeleteAsync(id);
+            if (result == -1)
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Product ID {id} was not found"));
             }
-
-            item.IsActive = false;
-            _context.Entry(item).State = EntityState.Modified;
-            await _context.SaveChangesAsync();
             return NoContent();
         }
     }
