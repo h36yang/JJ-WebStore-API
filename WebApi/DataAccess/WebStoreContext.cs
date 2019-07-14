@@ -52,13 +52,15 @@ namespace WebApi.DataAccess
             return base.SaveChanges(acceptAllChangesOnSuccess);
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = new CancellationToken())
         {
             ChangeTracker.SetAuditProperties();
             return await base.SaveChangesAsync(cancellationToken);
         }
 
-        public override async Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+        public override async Task<int> SaveChangesAsync(
+            bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default(CancellationToken))
         {
             ChangeTracker.SetAuditProperties();
             return await base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
