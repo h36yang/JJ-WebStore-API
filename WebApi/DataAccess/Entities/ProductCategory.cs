@@ -14,7 +14,7 @@ namespace WebApi.DataAccess.Entities
         public string Name { get; set; }
 
         [Required]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
 
         #endregion
 

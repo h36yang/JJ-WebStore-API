@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using WebApi.DataAccess;
 
 namespace WebApi.DataAccess.Migrations
 {
     [DbContext(typeof(WebStoreContext))]
-    partial class WebStoreContextModelSnapshot : ModelSnapshot
+    [Migration("20190714033109_ModifyProductCategoryData")]
+    partial class ModifyProductCategoryData
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -61,8 +63,7 @@ namespace WebApi.DataAccess.Migrations
                     b.Property<string>("Ingredient")
                         .HasMaxLength(50);
 
-                    b.Property<bool?>("IsActive")
-                        .IsRequired()
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(true);
 
@@ -113,8 +114,7 @@ namespace WebApi.DataAccess.Migrations
 
                     b.Property<DateTimeOffset>("CreatedOn");
 
-                    b.Property<bool?>("IsActive")
-                        .IsRequired()
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(true);
 
@@ -135,18 +135,18 @@ namespace WebApi.DataAccess.Migrations
                         new
                         {
                             Id = 1,
-                            CreatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 34, 25, 194, DateTimeKind.Unspecified).AddTicks(2747), new TimeSpan(0, -4, 0, 0, 0)),
+                            CreatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 31, 9, 460, DateTimeKind.Unspecified).AddTicks(8972), new TimeSpan(0, -4, 0, 0, 0)),
                             IsActive = true,
                             Name = "Featured",
-                            UpdatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 34, 25, 194, DateTimeKind.Unspecified).AddTicks(2783), new TimeSpan(0, -4, 0, 0, 0))
+                            UpdatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 31, 9, 460, DateTimeKind.Unspecified).AddTicks(9009), new TimeSpan(0, -4, 0, 0, 0))
                         },
                         new
                         {
                             Id = 2,
-                            CreatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 34, 25, 194, DateTimeKind.Unspecified).AddTicks(2789), new TimeSpan(0, -4, 0, 0, 0)),
+                            CreatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 31, 9, 460, DateTimeKind.Unspecified).AddTicks(9015), new TimeSpan(0, -4, 0, 0, 0)),
                             IsActive = true,
                             Name = "Hot",
-                            UpdatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 34, 25, 194, DateTimeKind.Unspecified).AddTicks(2793), new TimeSpan(0, -4, 0, 0, 0))
+                            UpdatedOn = new DateTimeOffset(new DateTime(2019, 7, 13, 23, 31, 9, 460, DateTimeKind.Unspecified).AddTicks(9019), new TimeSpan(0, -4, 0, 0, 0))
                         });
                 });
 
@@ -206,8 +206,7 @@ namespace WebApi.DataAccess.Migrations
 
                     b.Property<DateTimeOffset>("CreatedOn");
 
-                    b.Property<bool?>("IsActive")
-                        .IsRequired()
+                    b.Property<bool>("IsActive")
                         .ValueGeneratedOnAdd()
                         .HasDefaultValue(true);
 

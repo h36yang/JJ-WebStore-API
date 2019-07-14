@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System;
 using WebApi.DataAccess.Entities;
 
 namespace WebApi.DataAccess.EntityMaps
@@ -19,8 +20,8 @@ namespace WebApi.DataAccess.EntityMaps
                 .HasDefaultValue(true);
 
             builder.HasData(
-                new ProductCategory() { Id = 1, Name = "Featured", IsActive = true },
-                new ProductCategory() { Id = 2, Name = "Hot", IsActive = true }
+                new ProductCategory() { Id = 1, Name = "Featured", IsActive = true, CreatedOn = DateTimeOffset.Now, UpdatedOn = DateTimeOffset.Now },
+                new ProductCategory() { Id = 2, Name = "Hot", IsActive = true, CreatedOn = DateTimeOffset.Now, UpdatedOn = DateTimeOffset.Now }
             );
         }
     }

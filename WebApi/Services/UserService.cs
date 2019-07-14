@@ -52,7 +52,7 @@ namespace WebApi.Services
 
         public async Task<UserVM> AuthenticateAsync(string username, string password)
         {
-            User dbUser = await _userRepository.SingleOrDefaultAsync(x => x.IsActive && x.Username == username && x.Password == password);
+            User dbUser = await _userRepository.SingleOrDefaultAsync(x => x.IsActive.Value && x.Username == username && x.Password == password);
 
             // return null if user not found
             if (dbUser.IsObjectNull())

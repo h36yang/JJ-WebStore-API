@@ -31,7 +31,7 @@ namespace WebApi.Services
 
         public async Task<List<ProductVM>> GetAllActiveAsync()
         {
-            List<Product> dbProducts = await _productRepository.FindAsync(x => x.IsActive);
+            List<Product> dbProducts = await _productRepository.FindAsync(x => x.IsActive.Value);
             return _mapper.Map<List<Product>, List<ProductVM>>(dbProducts);
         }
 
@@ -42,7 +42,7 @@ namespace WebApi.Services
                 return null;
             }
             // Assumption: only return active products
-            List<Product> dbProducts = await _productRepository.FindAsync(x => x.IsActive && x.CategoryId == categoryId);
+            List<Product> dbProducts = await _productRepository.FindAsync(x => x.IsActive.Value && x.CategoryId == categoryId);
             return _mapper.Map<List<Product>, List<ProductVM>>(dbProducts);
         }
 

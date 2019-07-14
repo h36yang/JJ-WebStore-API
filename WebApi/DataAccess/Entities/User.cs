@@ -21,6 +21,6 @@ namespace WebApi.DataAccess.Entities
         public bool IsAdmin { get; set; }
 
         [Required]
-        public bool IsActive { get; set; }
+        public bool? IsActive { get; set; }
     }
 }
