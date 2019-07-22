@@ -29,4 +29,4 @@ steps:
     azureSubscription: 'Pay-As-You-Go (968079ef-ecea-4381-940d-843a706c9d20)'
     appType: 'webApp'
     WebAppName: 'zcTeaApi'
-    packageForLinux: '$(System.DefaultWorkingDirectory)/**/*.zip'
+    packageForLinux: '$(Build.ArtifactStagingDirectory)/**/*.zip'
