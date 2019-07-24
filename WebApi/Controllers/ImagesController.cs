@@ -34,7 +34,7 @@ namespace WebApi.Controllers
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Image ID {id} was not found"));
             }
-            return File(item.Data, "image/webp");
+            return File(item.Data, "image/jpeg");
         }
 
         // POST: api/Images
