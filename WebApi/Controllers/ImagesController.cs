@@ -23,7 +23,7 @@ namespace WebApi.Controllers
 
         // GET: api/Images/5
         [AllowAnonymous]
-        [ResponseCache(Duration = 3600)]
+        [ResponseCache(Duration = 86400)]
         [HttpGet("{id}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The image was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The image ID was not found", typeof(ErrorResponse))]
@@ -34,7 +34,7 @@ namespace WebApi.Controllers
             {
                 return NotFound(new ErrorResponse(StatusCodes.Status404NotFound, $"Image ID {id} was not found"));
             }
-            return File(item.Data, "image/jpeg");
+            return File(item.Data, "image/webp");
         }
 
         // POST: api/Images
