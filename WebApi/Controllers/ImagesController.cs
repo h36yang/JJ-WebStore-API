@@ -23,7 +23,7 @@ namespace WebApi.Controllers
 
         // GET: api/Images/5
         [AllowAnonymous]
-        [ResponseCache(Duration = 86400)]
+        [ResponseCache(Duration = 31557600)]
         [HttpGet("{id}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The image was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The image ID was not found", typeof(ErrorResponse))]
