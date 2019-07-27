@@ -41,6 +41,7 @@ namespace WebApi.Controllers
 
         // GET: api/Products/ByCategory
         [AllowAnonymous]
+        [ResponseCache(Duration = 1800)]
         [HttpGet("ByCategory/{categoryId}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The products by category were retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The category ID was not found", typeof(ErrorResponse))]
