@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.Swagger;
+using System.Linq;
 using System.Text;
 using WebApi.DataAccess;
 using WebApi.DataAccess.Repositories;
@@ -58,23 +60,46 @@ namespace WebApi
                 .AddDbContextCheck<WebStoreContext>();
 
             // Inject DB Context and Run Migrations
-            services.AddDbContext<WebStoreContext>(options => options
-                .UseSqlServer(Configuration.GetConnectionString("WebStore"))
-                .ConfigureWarnings(warnings => warnings.Default(WarningBehavior.Ignore)
-                                                       .Log(CoreEventId.IncludeIgnoredWarning)
-                                                       .Throw(RelationalEventId.QueryClientEvaluationWarning)));
-            services.BuildServiceProvider().GetService<WebStoreContext>().Database.Migrate();
+            services.AddDbContext<WebStoreContext>(options =>
+            {
+                options
+                    .UseSqlServer(Configuration.GetConnectionString("WebStore"))
+                    .ConfigureWarnings(warnings =>
+                    {
+                        warnings.Default(WarningBehavior.Ignore)
+                                .Log(CoreEventId.IncludeIgnoredWarning)
+                                .Throw(RelationalEventId.QueryClientEvaluationWarning);
+                    });
+            });
+            services
+                .BuildServiceProvider()
+                .GetService<WebStoreContext>()
+                .Database.Migrate();
 
+            // Register CORS Middleware
             services.AddCors();
+
+            // Register Response Caching Middleware
             services.AddResponseCaching();
-            services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+
+            // Register Response Compression Middleware
+            services.AddResponseCompression(options =>
+            {
+                // Add image/jpeg to the list of default mime types
+                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new string[] { "image/jpeg" });
+            });
+
+            // Register MVC Middleware
+            services
+                .AddMvc()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
-            services.AddSwaggerGen(c =>
+            services.AddSwaggerGen(options =>
             {
-                c.SwaggerDoc("v1", new Info { Title = "ZC Tea Web Store API", Version = "v1" });
+                options.SwaggerDoc("v1", new Info { Title = "ZC Tea Web Store API", Version = "v1" });
 
-                c.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new ApiKeyScheme
+                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new ApiKeyScheme
                 {
                     Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
                     Name = "Authorization",
@@ -82,33 +107,34 @@ namespace WebApi
                     Type = "apiKey"
                 });
 
-                c.OperationFilter<SecurityRequirementsOperationFilter>(true, JwtBearerDefaults.AuthenticationScheme);
+                options.OperationFilter<SecurityRequirementsOperationFilter>(true, JwtBearerDefaults.AuthenticationScheme);
             });
 
-            // configure strongly typed settings objects
+            // Register and configure strongly typed settings objects
             var appSettingsSection = Configuration.GetSection("AppSettings");
             services.Configure<AppSettings>(appSettingsSection);
 
-            // configure jwt authentication
+            // Register and configure JWT Authentication
             var appSettings = appSettingsSection.Get<AppSettings>();
             var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services.AddAuthentication(x =>
-            {
-                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-            })
-            .AddJwtBearer(x =>
-            {
-                x.RequireHttpsMetadata = false;
-                x.SaveToken = true;
-                x.TokenValidationParameters = new TokenValidationParameters
+            services
+                .AddAuthentication(options =>
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false
-                };
-            });
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -130,6 +156,9 @@ namespace WebApi
             // Response Caching
             app.UseResponseCaching();
 
+            // Response Compression
+            app.UseResponseCompression();
+
             // Configure AutoMapper
             autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
 
@@ -138,17 +167,20 @@ namespace WebApi
 
             // Enable middleware to serve swagger-ui (HTML, JS, CSS, etc.), 
             // specifying the Swagger JSON endpoint.
-            app.UseSwaggerUI(c =>
+            app.UseSwaggerUI(options =>
             {
-                c.SwaggerEndpoint("/swagger/v1/swagger.json", "ZC Tea Web Store API v1");
-                c.RoutePrefix = string.Empty;
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "ZC Tea Web Store API v1");
+                options.RoutePrefix = string.Empty;
             });
 
             // global cors policy
-            app.UseCors(x => x
-                .AllowAnyOrigin()
-                .AllowAnyMethod()
-                .AllowAnyHeader());
+            app.UseCors(cors =>
+            {
+                cors
+                  .AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+            });
 
             app.UseHttpsRedirection();
             app.UseAuthentication();
