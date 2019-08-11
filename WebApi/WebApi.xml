@@ -1,0 +1,232 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebApi</name>
+    </assembly>
+    <members>
+        <member name="T:WebApi.Controllers.ErrorsController">
+            <summary>
+            Errors Controller Class
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.ErrorsController.Error(System.Int32)">
+            <summary>
+            Get a standard error response based on a HTTP error code
+            </summary>
+            <param name="code">HTTP error code, e.g. 404</param>
+            <returns>Action Result of Standard Error Response</returns>
+        </member>
+        <member name="T:WebApi.Controllers.UsersController">
+            <summary>
+            Users Controller Class
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.#ctor(WebApi.Services.Interfaces.IUserService)">
+            <summary>
+            Default Constructor
+            </summary>
+            <param name="userService">User Service Interface</param>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.Authenticate(System.String,System.String)">
+            <summary>
+            Authenticate user by user name and password
+            </summary>
+            <param name="username">User Name</param>
+            <param name="password">Password</param>
+            <returns>Action Result of User with Authentication Token</returns>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.Register(System.String,System.String)">
+            <summary>
+            Register user with user name and password, and authenticate automatically upon successful registration
+            </summary>
+            <param name="username">User Name</param>
+            <param name="password">Password</param>
+            <returns>Action Result of User with Authentication Token</returns>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.GetUser(System.Int32)">
+            <summary>
+            Get user by system identifier
+            </summary>
+            <param name="id">System User Identifier (not user name)</param>
+            <returns>Action Result of User</returns>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.GetCurrentUser">
+            <summary>
+            Get the current authenticated user
+            </summary>
+            <returns>Action Result of the Authenticated User</returns>
+        </member>
+        <member name="M:WebApi.Controllers.UsersController.GetAllUsers">
+            <summary>
+            Get all users in the system
+            </summary>
+            <returns>Action Result of a list of Users</returns>
+        </member>
+        <member name="T:WebApi.Startup">
+            <summary>
+            Application Startup Class
+            </summary>
+        </member>
+        <member name="M:WebApi.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Default Constructor
+            </summary>
+            <param name="configuration">Configuration Interface</param>
+        </member>
+        <member name="P:WebApi.Startup.Configuration">
+            <summary>
+            Configuration Interface Getter
+            </summary>
+        </member>
+        <member name="M:WebApi.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Use this method to add services to the container.
+            </summary>
+            <param name="services">Service Collection Interface</param>
+        </member>
+        <member name="M:WebApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment,AutoMapper.IMapper)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary>
+            <param name="app">Application Builder Interface</param>
+            <param name="env">Hosting Environment Interface</param>
+            <param name="autoMapper">AutoMapper Interface</param>
+        </member>
+        <member name="T:WebApi.ViewModelMappers.AutoMapperExtensions">
+            <summary>
+            AutoMapper Extensions Class
+            </summary>
+        </member>
+        <member name="M:WebApi.ViewModelMappers.AutoMapperExtensions.IgnoreAllNonExisting``2(AutoMapper.IMappingExpression{``0,``1})">
+            <summary>
+            Extension method to ignore all non-existing class members during automapping
+            </summary>
+            <typeparam name="TSource">Source class to map from</typeparam>
+            <typeparam name="TDestination">Destination class to map to</typeparam>
+            <param name="expression">Input IMappingExpression</param>
+            <returns>Result IMappingExpression after ignoring all non-existing class members</returns>
+        </member>
+        <member name="T:WebApi.ViewModelMappers.AutoMapperProfile">
+            <summary>
+            AutoMapper Profile Class
+            </summary>
+        </member>
+        <member name="M:WebApi.ViewModelMappers.AutoMapperProfile.#ctor">
+            <summary>
+            Default Constructor to create mappings
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.BaseViewModel">
+            <summary>
+            Base View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.BaseViewModel.Id">
+            <summary>
+            Unique Identifier
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.BaseViewModel.CreatedOn">
+            <summary>
+            Date and time the entity is created on
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.BaseViewModel.UpdatedOn">
+            <summary>
+            Date and time the entity is last updated on
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.IViewModel">
+            <summary>
+            Base View Model Interface
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.IViewModel.Id">
+            <summary>
+            Unique Identifier
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.IViewModel.CreatedOn">
+            <summary>
+            Date and time the entity is created on
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.IViewModel.UpdatedOn">
+            <summary>
+            Date and time the entity is last updated on
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.ErrorResponse">
+            <summary>
+            Standard Error Response Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ErrorResponse.StatusCode">
+            <summary>
+            HTTP Status Code
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ErrorResponse.Message">
+            <summary>
+            HTTP Status Message
+            </summary>
+        </member>
+        <member name="M:WebApi.ViewModels.ErrorResponse.#ctor(System.Int32,System.String)">
+            <summary>
+            Default Constructor
+            </summary>
+            <param name="statusCode">HTTP Status Code</param>
+            <param name="message">HTTP Status Message</param>
+        </member>
+        <member name="T:WebApi.ViewModels.UserForUpdateVM">
+            <summary>
+            User for Update View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserForUpdateVM.Username">
+            <summary>
+            User Name - must be unique
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserForUpdateVM.Password">
+            <summary>
+            User Password
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserForUpdateVM.IsAdmin">
+            <summary>
+            Whether or not the user is an administrator
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserForUpdateVM.IsActive">
+            <summary>
+            Whether or not the user is active
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.UserVM">
+            <summary>
+            User View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserVM.Username">
+            <summary>
+            User Name - must be unique
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserVM.IsAdmin">
+            <summary>
+            Whether or not the user is an administrator
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserVM.IsActive">
+            <summary>
+            Whether or not the user is active
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserVM.Token">
+            <summary>
+            User Authentication Token
+            </summary>
+        </member>
+    </members>
+</doc>

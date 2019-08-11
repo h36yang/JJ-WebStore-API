@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
-using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
@@ -76,7 +75,6 @@ namespace WebApi.Services
 
             UserVM user = _mapper.Map<User, UserVM>(dbUser);
             user.Token = tokenHandler.WriteToken(token);
-            user.Password = null; // remove password before returning
             return user;
         }
 
@@ -87,18 +85,13 @@ namespace WebApi.Services
             {
                 return null;
             }
-            dbUser.Password = null; // remove password before returning
             return _mapper.Map<User, UserVM>(dbUser);
         }
 
         public async Task<List<UserVM>> GetAllAsync()
         {
             List<User> dbUsers = await _userRepository.GetAllAsync();
-            return dbUsers.Select(x =>
-            {
-                x.Password = null; // remove password before returning
-                return _mapper.Map<User, UserVM>(x);
-            }).ToList();
+            return _mapper.Map<List<User>, List<UserVM>>(dbUsers);
         }
     }
 }

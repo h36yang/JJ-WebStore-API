@@ -5,8 +5,14 @@ using WebApi.ViewModels;
 
 namespace WebApi.ViewModelMappers
 {
+    /// <summary>
+    /// AutoMapper Profile Class
+    /// </summary>
     public class AutoMapperProfile : Profile
     {
+        /// <summary>
+        /// Default Constructor to create mappings
+        /// </summary>
         public AutoMapperProfile()
         {
             CreateMap<Product, ProductVM>()
@@ -15,6 +21,16 @@ namespace WebApi.ViewModelMappers
                 .ReverseMap()
                 .IgnoreAllNonExisting()
                 .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImageIds.Select(x => new ProductImage { ProductId = src.Id, ImageId = x }).ToList()));
+
+            CreateMap<User, UserVM>()
+                .IgnoreAllNonExisting()
+                .ReverseMap()
+                .IgnoreAllNonExisting();
+
+            CreateMap<User, UserForUpdateVM>()
+                .IgnoreAllNonExisting()
+                .ReverseMap()
+                .IgnoreAllNonExisting();
         }
     }
 }

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
@@ -11,7 +12,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.Swagger;
+using System;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using WebApi.DataAccess;
 using WebApi.DataAccess.Repositories;
@@ -23,16 +27,29 @@ using WebApi.ViewModelMappers;
 
 namespace WebApi
 {
+    /// <summary>
+    /// Application Startup Class
+    /// </summary>
     public class Startup
     {
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        /// <param name="configuration">Configuration Interface</param>
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
         }
 
+        /// <summary>
+        /// Configuration Interface Getter
+        /// </summary>
         public IConfiguration Configuration { get; }
 
-        // This method gets called by the runtime. Use this method to add services to the container.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to add services to the container.
+        /// </summary>
+        /// <param name="services">Service Collection Interface</param>
         public void ConfigureServices(IServiceCollection services)
         {
             // Register the Options
@@ -76,6 +93,27 @@ namespace WebApi
                 .GetService<WebStoreContext>()
                 .Database.Migrate();
 
+            // Configura API behavior for Unprocessable Entity error
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.InvalidModelStateResponseFactory = actionContext =>
+                {
+                    var actionExecutingContext = actionContext as ActionExecutingContext;
+
+                    // if there are modelstate errors & all keys were correctly
+                    // found/parsed we're dealing with validation errors
+                    if (actionContext.ModelState.ErrorCount > 0 &&
+                        actionExecutingContext?.ActionArguments.Count == actionContext.ActionDescriptor.Parameters.Count)
+                    {
+                        return new UnprocessableEntityObjectResult(actionContext.ModelState);
+                    }
+
+                    // if one of the keys wasn't correctly found / couldn't be parsed
+                    // we're dealing with null/unparsable input
+                    return new BadRequestObjectResult(actionContext.ModelState);
+                };
+            });
+
             // Register CORS Middleware
             services.AddCors();
 
@@ -98,6 +136,10 @@ namespace WebApi
             services.AddSwaggerGen(options =>
             {
                 options.SwaggerDoc("v1", new Info { Title = "ZC Tea Web Store API", Version = "v1" });
+
+                var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
+                options.IncludeXmlComments(xmlCommentsFullPath);
 
                 options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new ApiKeyScheme
                 {
@@ -137,11 +179,16 @@ namespace WebApi
                 });
         }
 
-        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// <summary>
+        /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        /// </summary>
+        /// <param name="app">Application Builder Interface</param>
+        /// <param name="env">Hosting Environment Interface</param>
+        /// <param name="autoMapper">AutoMapper Interface</param>
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMapper autoMapper)
         {
-            app.UseStatusCodePagesWithReExecute("/Errors/{0}");
-            app.UseHealthChecks("/health");
+            // Configure AutoMapper
+            autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
 
             if (env.IsDevelopment())
             {
@@ -153,14 +200,20 @@ namespace WebApi
                 app.UseHsts();
             }
 
-            // Response Caching
-            app.UseResponseCaching();
-
-            // Response Compression
+            // Enable Response Compression
             app.UseResponseCompression();
 
-            // Configure AutoMapper
-            autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
+            // Enable HTTPS Redirect
+            app.UseHttpsRedirection();
+
+            // Enable Standard Error Responses
+            app.UseStatusCodePagesWithReExecute("/Errors/{0}");
+
+            // Enable Standard Health Checks
+            app.UseHealthChecks("/health");
+
+            // Enable Response Caching
+            app.UseResponseCaching();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();
@@ -182,7 +235,6 @@ namespace WebApi
                   .AllowAnyHeader();
             });
 
-            app.UseHttpsRedirection();
             app.UseAuthentication();
             app.UseMvc();
         }
