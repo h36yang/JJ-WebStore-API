@@ -8,6 +8,9 @@ using WebApi.ViewModels;
 
 namespace WebApi.Controllers
 {
+    /// <summary>
+    /// Images Controller Class
+    /// </summary>
     [Authorize]
     [Produces("application/json")]
     [Route("api/[controller]")]
@@ -16,12 +19,20 @@ namespace WebApi.Controllers
     {
         private readonly IImageService _imageService;
 
+        /// <summary>
+        /// Default Constructor
+        /// </summary>
+        /// <param name="imageService">Image Service Interface</param>
         public ImagesController(IImageService imageService)
         {
             _imageService = imageService;
         }
 
-        // GET: api/Images/5
+        /// <summary>
+        /// Get image serialized as jpeg by identifier
+        /// </summary>
+        /// <param name="id">Image System Identifier</param>
+        /// <returns>File Content Result serialized as image/jpeg</returns>
         [AllowAnonymous]
         [ResponseCache(Duration = 31557600)]
         [HttpGet("{id}")]
@@ -37,7 +48,12 @@ namespace WebApi.Controllers
             return File(item.Data, "image/jpeg");
         }
 
-        // POST: api/Images
+        /// <summary>
+        /// Upload image file with name
+        /// </summary>
+        /// <param name="name">File Name</param>
+        /// <param name="file">Image File as Form Data</param>
+        /// <returns>Action Result of uploaded Image with identifier generated</returns>
         [HttpPost]
         [SwaggerResponse(StatusCodes.Status201Created, "The image was uploaded successfully")]
         [SwaggerResponse(StatusCodes.Status400BadRequest, "Missing image name or file data", typeof(ErrorResponse))]

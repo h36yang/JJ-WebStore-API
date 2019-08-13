@@ -14,9 +14,9 @@ namespace WebApi.Services.Interfaces
 
         Task<ProductVM> GetByIdAsync(int id);
 
-        Task<ProductVM> AddAsync(ProductVM product);
+        Task<ProductVM> AddAsync(ProductForUpdateVM product);
 
-        Task<int> UpdateAsync(ProductVM product);
+        Task<int> UpdateAsync(ProductForUpdateVM product);
 
         Task<int> ActivateAsync(int id);
 

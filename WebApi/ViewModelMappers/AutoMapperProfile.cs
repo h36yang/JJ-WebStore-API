@@ -15,13 +15,54 @@ namespace WebApi.ViewModelMappers
         /// </summary>
         public AutoMapperProfile()
         {
+            CreateProductMappings();
+            CreateUserMappings();
+        }
+
+        private void CreateProductMappings()
+        {
             CreateMap<Product, ProductVM>()
                 .IgnoreAllNonExisting()
-                .ForMember(dest => dest.ProductImageIds, opt => opt.MapFrom(src => src.ProductImages.Select(x => x.ImageId).ToList()))
+                .ForMember(
+                    dest => dest.ProductImages,
+                    opt => opt.MapFrom(src => src.ProductImages.Select(x =>
+                        new ImageVM
+                        {
+                            Id = x.Image.Id,
+                            Name = x.Image.Name,
+                            CreatedOn = x.CreatedOn,
+                            UpdatedOn = x.UpdatedOn
+                        }).ToList()))
                 .ReverseMap()
                 .IgnoreAllNonExisting()
-                .ForMember(dest => dest.ProductImages, opt => opt.MapFrom(src => src.ProductImageIds.Select(x => new ProductImage { ProductId = src.Id, ImageId = x }).ToList()));
+                .ForMember(
+                    dest => dest.ProductImages,
+                    opt => opt.MapFrom(src => src.ProductImages.Select(x =>
+                        new ProductImage
+                        {
+                            ProductId = src.Id,
+                            ImageId = x.Id
+                        }).ToList()));
 
+            CreateMap<Product, ProductForUpdateVM>()
+                .IgnoreAllNonExisting()
+                .ForMember(
+                    dest => dest.ProductImageIds,
+                    opt => opt.MapFrom(src => src.ProductImages.Select(pi => pi.ImageId).ToList()))
+                .ReverseMap()
+                .IgnoreAllNonExisting()
+                .ForMember(
+                    dest => dest.ProductImages,
+                    opt => opt.MapFrom(src => src.ProductImageIds.Select(i =>
+                        new ProductImage
+                        {
+                            ProductId = src.Id,
+                            ImageId = i
+                        }).ToList()));
+        }
+
+        private void CreateUserMappings()
+        {
             CreateMap<User, UserVM>()
                 .IgnoreAllNonExisting()
                 .ReverseMap()

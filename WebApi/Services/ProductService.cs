@@ -49,7 +49,10 @@ namespace WebApi.Services
         public async Task<ProductVM> GetByIdAsync(int id)
         {
             Product dbProduct = await _productRepository.GetAsync(id,
-                includes: q => q.Include(x => x.ProductImages).Include(x => x.Functions));
+                includes: q => q.Include(product => product.ProductImages)
+                                    .ThenInclude(rel => rel.Image)
+                                .Include(product => product.Functions));
+
             if (dbProduct.IsObjectNull())
             {
                 return null;
@@ -57,16 +60,16 @@ namespace WebApi.Services
             return _mapper.Map<Product, ProductVM>(dbProduct);
         }
 
-        public async Task<ProductVM> AddAsync(ProductVM product)
+        public async Task<ProductVM> AddAsync(ProductForUpdateVM product)
         {
-            Product dbProduct = _mapper.Map<ProductVM, Product>(product);
+            Product dbProduct = _mapper.Map<ProductForUpdateVM, Product>(product);
             await _productRepository.AddAsync(dbProduct);
             return _mapper.Map<Product, ProductVM>(dbProduct);
         }
 
-        public async Task<int> UpdateAsync(ProductVM product)
+        public async Task<int> UpdateAsync(ProductForUpdateVM product)
         {
-            Product dbProduct = _mapper.Map<ProductVM, Product>(product);
+            Product dbProduct = _mapper.Map<ProductForUpdateVM, Product>(product);
             return await _productRepository.UpdateAsync(dbProduct);
         }
 

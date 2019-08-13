@@ -16,6 +16,98 @@
             <param name="code">HTTP error code, e.g. 404</param>
             <returns>Action Result of Standard Error Response</returns>
         </member>
+        <member name="T:WebApi.Controllers.ImagesController">
+            <summary>
+            Images Controller Class
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.ImagesController.#ctor(WebApi.Services.Interfaces.IImageService)">
+            <summary>
+            Default Constructor
+            </summary>
+            <param name="imageService">Image Service Interface</param>
+        </member>
+        <member name="M:WebApi.Controllers.ImagesController.GetImage(System.Int32)">
+            <summary>
+            Get image serialized as jpeg by identifier
+            </summary>
+            <param name="id">Image System Identifier</param>
+            <returns>File Content Result serialized as image/jpeg</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ImagesController.UploadImage(System.String,Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Upload image file with name
+            </summary>
+            <param name="name">File Name</param>
+            <param name="file">Image File as Form Data</param>
+            <returns>Action Result of uploaded Image with identifier generated</returns>
+        </member>
+        <member name="T:WebApi.Controllers.ProductsController">
+            <summary>
+            Products Controller Class
+            </summary>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.#ctor(WebApi.Services.Interfaces.IProductService)">
+            <summary>
+            Default Constructor
+            </summary>
+            <param name="productService">Product Service Interface</param>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.GetAllProducts">
+            <summary>
+            Get all products in the system
+            </summary>
+            <returns>Action Result of a list of Products</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.GetActiveProducts">
+            <summary>
+            Get all active products in the system
+            </summary>
+            <returns>Action Result of a list of active Products</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.GetProductsByCategory(System.Int32)">
+            <summary>
+            Get products by category identifier
+            </summary>
+            <param name="categoryId">Category System Identifier (1 or 2)</param>
+            <returns>Action Result of a list of Products of a particular Category</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.GetProduct(System.Int32)">
+            <summary>
+            Get a product by system identifier
+            </summary>
+            <param name="id">Product System Identifier</param>
+            <returns>Action Result of a particular Product</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.AddProduct(WebApi.ViewModels.ProductForUpdateVM)">
+            <summary>
+            Create a product in the system
+            </summary>
+            <param name="product">Product info to be created</param>
+            <returns>Action Result of the created Product with identifier generated</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.UpdateProduct(System.Int32,WebApi.ViewModels.ProductForUpdateVM)">
+            <summary>
+            Update a product by identifier in the system
+            </summary>
+            <param name="id">System identifier of the Product to be updated</param>
+            <param name="product">Product info to be updated</param>
+            <returns>No Content Result if updated successfully</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.ActivateProduct(System.Int32)">
+            <summary>
+            Activate a product by identifier in the system
+            </summary>
+            <param name="id">System identifier of the Product to be activated</param>
+            <returns>No Content Result if activated successfully</returns>
+        </member>
+        <member name="M:WebApi.Controllers.ProductsController.DeleteProduct(System.Int32)">
+            <summary>
+            Soft-delete a product by identifier from the system
+            </summary>
+            <param name="id">System identifier of the Product to be deleted</param>
+            <returns>No Content Result if deleted successfully</returns>
+        </member>
         <member name="T:WebApi.Controllers.UsersController">
             <summary>
             Users Controller Class
@@ -45,7 +137,7 @@
         </member>
         <member name="M:WebApi.Controllers.UsersController.GetUser(System.Int32)">
             <summary>
-            Get user by system identifier
+            Get a user by system identifier
             </summary>
             <param name="id">System User Identifier (not user name)</param>
             <returns>Action Result of User</returns>
@@ -123,7 +215,7 @@
         </member>
         <member name="P:WebApi.ViewModels.BaseViewModel.Id">
             <summary>
-            Unique Identifier
+            System Unique Identifier
             </summary>
         </member>
         <member name="P:WebApi.ViewModels.BaseViewModel.CreatedOn">
@@ -143,7 +235,7 @@
         </member>
         <member name="P:WebApi.ViewModels.IViewModel.Id">
             <summary>
-            Unique Identifier
+            System Unique Identifier
             </summary>
         </member>
         <member name="P:WebApi.ViewModels.IViewModel.CreatedOn">
@@ -178,14 +270,154 @@
             <param name="statusCode">HTTP Status Code</param>
             <param name="message">HTTP Status Message</param>
         </member>
+        <member name="T:WebApi.ViewModels.ImageVM">
+            <summary>
+            Image View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ImageVM.Name">
+            <summary>
+            Image Name
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.ProductBaseVM">
+            <summary>
+            Base Product View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Name">
+            <summary>
+            Product Name
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.LongName">
+            <summary>
+            Product Long Name
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Description">
+            <summary>
+            Product Description
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.ProductNumber">
+            <summary>
+            Product Number, e.g. YTPA12BC0046
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Ingredient">
+            <summary>
+            Product Ingredients
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Type">
+            <summary>
+            Product Type (i.e. Tea Type)
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Price">
+            <summary>
+            Product Price
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Volume">
+            <summary>
+            Product Volume
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Origin">
+            <summary>
+            Product Origin
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Producer">
+            <summary>
+            Producer Company
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Highlight">
+            <summary>
+            Short Highlight of the Product
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.IsActive">
+            <summary>
+            Whether or not the product is active
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.CategoryId">
+            <summary>
+            Product Category ID - foreign key to Product Categories
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.AvatarId">
+            <summary>
+            Product Avatar ID - foreign key to Images
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductBaseVM.Functions">
+            <summary>
+            List of Product Functions
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.ProductForUpdateVM">
+            <summary>
+            Product for Update View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductForUpdateVM.ProductImageIds">
+            <summary>
+            List of Product Image IDs - foreign keys to Images
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.ProductFunctionVM">
+            <summary>
+            Product Function View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductFunctionVM.Summary">
+            <summary>
+            Product Function Summary
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductFunctionVM.Detail">
+            <summary>
+            Product Function Details
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.ProductVM">
+            <summary>
+            Product View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.ProductVM.ProductImages">
+            <summary>
+            List of Product Images
+            </summary>
+        </member>
+        <member name="T:WebApi.ViewModels.UserBaseVM">
+            <summary>
+            Base User View Model Class
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserBaseVM.Username">
+            <summary>
+            User Name - must be unique
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserBaseVM.IsAdmin">
+            <summary>
+            Whether or not the user is an administrator
+            </summary>
+        </member>
+        <member name="P:WebApi.ViewModels.UserBaseVM.IsActive">
+            <summary>
+            Whether or not the user is active
+            </summary>
+        </member>
         <member name="T:WebApi.ViewModels.UserForUpdateVM">
             <summary>
             User for Update View Model Class
-            </summary>
-        </member>
-        <member name="P:WebApi.ViewModels.UserForUpdateVM.Username">
-            <summary>
-            User Name - must be unique
             </summary>
         </member>
         <member name="P:WebApi.ViewModels.UserForUpdateVM.Password">
@@ -193,34 +425,9 @@
             User Password
             </summary>
         </member>
-        <member name="P:WebApi.ViewModels.UserForUpdateVM.IsAdmin">
-            <summary>
-            Whether or not the user is an administrator
-            </summary>
-        </member>
-        <member name="P:WebApi.ViewModels.UserForUpdateVM.IsActive">
-            <summary>
-            Whether or not the user is active
-            </summary>
-        </member>
         <member name="T:WebApi.ViewModels.UserVM">
             <summary>
             User View Model Class
-            </summary>
-        </member>
-        <member name="P:WebApi.ViewModels.UserVM.Username">
-            <summary>
-            User Name - must be unique
-            </summary>
-        </member>
-        <member name="P:WebApi.ViewModels.UserVM.IsAdmin">
-            <summary>
-            Whether or not the user is an administrator
-            </summary>
-        </member>
-        <member name="P:WebApi.ViewModels.UserVM.IsActive">
-            <summary>
-            Whether or not the user is active
             </summary>
         </member>
         <member name="P:WebApi.ViewModels.UserVM.Token">

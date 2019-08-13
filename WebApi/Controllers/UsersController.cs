@@ -80,7 +80,7 @@ namespace WebApi.Controllers
         }
 
         /// <summary>
-        /// Get user by system identifier
+        /// Get a user by system identifier
         /// </summary>
         /// <param name="id">System User Identifier (not user name)</param>
         /// <returns>Action Result of User</returns>

@@ -16,6 +16,7 @@ namespace WebApi.DataAccess.Entities
         [MaxLength(50)]
         public string Name { get; set; }
 
+        [IgnoreMap]
         [Required]
         public byte[] Data { get; set; }
 

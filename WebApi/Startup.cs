@@ -121,11 +121,7 @@ namespace WebApi
             services.AddResponseCaching();
 
             // Register Response Compression Middleware
-            services.AddResponseCompression(options =>
-            {
-                // Add image/jpeg to the list of default mime types
-                options.MimeTypes = ResponseCompressionDefaults.MimeTypes.Concat(new string[] { "image/jpeg" });
-            });
+            services.AddResponseCompression();
 
             // Register MVC Middleware
             services
@@ -200,9 +196,6 @@ namespace WebApi
                 app.UseHsts();
             }
 
-            // Enable Response Compression
-            app.UseResponseCompression();
-
             // Enable HTTPS Redirect
             app.UseHttpsRedirection();
 
@@ -214,6 +207,9 @@ namespace WebApi
 
             // Enable Response Caching
             app.UseResponseCaching();
+
+            // Enable Response Compression
+            app.UseResponseCompression();
 
             // Enable middleware to serve generated Swagger as a JSON endpoint.
             app.UseSwagger();

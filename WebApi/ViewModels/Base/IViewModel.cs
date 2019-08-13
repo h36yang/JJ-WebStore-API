@@ -8,7 +8,7 @@ namespace WebApi.ViewModels
     public interface IViewModel
     {
         /// <summary>
-        /// Unique Identifier
+        /// System Unique Identifier
         /// </summary>
         int Id { get; set; }
 
