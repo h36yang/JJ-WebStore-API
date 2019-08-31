@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using ImageMagick;
 using Microsoft.AspNetCore.Http;
 using System.IO;
 using System.Threading.Tasks;
@@ -36,6 +37,7 @@ namespace WebApi.Services
             using (var stream = new MemoryStream())
             {
                 await file.CopyToAsync(stream);
+                OptimizeImageStream(stream);
                 var fileBytes = stream.ToArray();
 
                 var dbImage = new Image()
@@ -46,6 +48,14 @@ namespace WebApi.Services
                 await _imageRepository.AddAsync(dbImage);
                 return _mapper.Map<Image, ImageVM>(dbImage);
             }
+        }
+
+        private bool OptimizeImageStream(Stream imageStream)
+        {
+            var optimizer = new ImageOptimizer();
+            imageStream.Position = 0;
+            bool success = optimizer.LosslessCompress(imageStream);
+            return success;
         }
     }
 }

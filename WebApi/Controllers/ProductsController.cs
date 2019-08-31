@@ -78,6 +78,7 @@ namespace WebApi.Controllers
         /// <param name="id">Product System Identifier</param>
         /// <returns>Action Result of a particular Product</returns>
         [AllowAnonymous]
+        [ResponseCache(Duration = 1800)]
         [HttpGet("{id}")]
         [SwaggerResponse(StatusCodes.Status200OK, "The product was retrieved successfully")]
         [SwaggerResponse(StatusCodes.Status404NotFound, "The product ID was not found", typeof(ErrorResponse))]

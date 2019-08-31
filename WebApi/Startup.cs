@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +13,6 @@ using Swashbuckle.AspNetCore.Filters;
 using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.Text;
 using WebApi.DataAccess;
@@ -76,23 +74,6 @@ namespace WebApi
                 .AddHealthChecks()
                 .AddDbContextCheck<WebStoreContext>();
 
-            // Inject DB Context and Run Migrations
-            services.AddDbContext<WebStoreContext>(options =>
-            {
-                options
-                    .UseSqlServer(Configuration.GetConnectionString("WebStore"))
-                    .ConfigureWarnings(warnings =>
-                    {
-                        warnings.Default(WarningBehavior.Ignore)
-                                .Log(CoreEventId.IncludeIgnoredWarning)
-                                .Throw(RelationalEventId.QueryClientEvaluationWarning);
-                    });
-            });
-            services
-                .BuildServiceProvider()
-                .GetService<WebStoreContext>()
-                .Database.Migrate();
-
             // Configura API behavior for Unprocessable Entity error
             services.Configure<ApiBehaviorOptions>(options =>
             {
@@ -113,6 +94,23 @@ namespace WebApi
                     return new BadRequestObjectResult(actionContext.ModelState);
                 };
             });
+
+            // Inject DB Context and Run Migrations
+            services.AddDbContext<WebStoreContext>(options =>
+            {
+                options
+                    .UseSqlServer(Configuration.GetConnectionString("WebStore"))
+                    .ConfigureWarnings(warnings =>
+                    {
+                        warnings.Default(WarningBehavior.Ignore)
+                                .Log(CoreEventId.IncludeIgnoredWarning)
+                                .Throw(RelationalEventId.QueryClientEvaluationWarning);
+                    });
+            });
+            services
+                .BuildServiceProvider()
+                .GetService<WebStoreContext>()
+                .Database.Migrate();
 
             // Register CORS Middleware
             services.AddCors();
