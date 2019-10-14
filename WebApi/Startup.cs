@@ -30,6 +30,8 @@ namespace WebApi
     /// </summary>
     public class Startup
     {
+        public const string MyCorsPolicyName = "AllowAll";
+
         /// <summary>
         /// Default Constructor
         /// </summary>
@@ -128,7 +130,16 @@ namespace WebApi
             });
 
             // Register CORS Middleware
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy(MyCorsPolicyName, builder =>
+                {
+                    builder
+                        .AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
+                });
+            });
 
             // Register Response Caching Middleware
             services.AddResponseCaching();
@@ -191,20 +202,14 @@ namespace WebApi
             // Run EF Database Migrations
             service.GetService<WebStoreContext>().Database.Migrate();
 
-            // Enable HTTPS Redirect
-            app.UseHttpsRedirection();
-
             // Enable MVC Routing
             app.UseRouting();
 
             // Enable Global CORS Policy
-            app.UseCors(cors =>
-            {
-                cors
-                  .AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-            });
+            app.UseCors(MyCorsPolicyName);
+
+            // Enable HTTPS Redirect
+            app.UseHttpsRedirection();
 
             // Enable Standard Error Responses
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
