@@ -5,12 +5,12 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Filters;
-using Swashbuckle.AspNetCore.Swagger;
 using System;
 using System.IO;
 using System.Reflection;
@@ -53,6 +53,32 @@ namespace WebApi
             // Register the Options
             services.AddOptions();
 
+            // Register and configure strongly typed settings objects
+            var appSettingsSection = Configuration.GetSection("AppSettings");
+            services.Configure<AppSettings>(appSettingsSection);
+
+            // Register and configure JWT Authentication
+            var appSettings = appSettingsSection.Get<AppSettings>();
+            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
+            services
+                .AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+                })
+                .AddJwtBearer(options =>
+                {
+                    options.RequireHttpsMetadata = false;
+                    options.SaveToken = true;
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false
+                    };
+                });
+
             // Inject the repositories
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IImageRepository, ImageRepository>();
@@ -68,6 +94,12 @@ namespace WebApi
 
             // Register AutoMapper Profile
             services.AddAutoMapper(typeof(AutoMapperProfile));
+
+            // Inject DB Context and Run Migrations
+            services.AddDbContext<WebStoreContext>(options =>
+            {
+                options.UseSqlServer(Configuration.GetConnectionString("WebStore"));
+            });
 
             // Register Health Checks
             services
@@ -95,23 +127,6 @@ namespace WebApi
                 };
             });
 
-            // Inject DB Context and Run Migrations
-            services.AddDbContext<WebStoreContext>(options =>
-            {
-                options
-                    .UseSqlServer(Configuration.GetConnectionString("WebStore"))
-                    .ConfigureWarnings(warnings =>
-                    {
-                        warnings.Default(WarningBehavior.Ignore)
-                                .Log(CoreEventId.IncludeIgnoredWarning)
-                                .Throw(RelationalEventId.QueryClientEvaluationWarning);
-                    });
-            });
-            services
-                .BuildServiceProvider()
-                .GetService<WebStoreContext>()
-                .Database.Migrate();
-
             // Register CORS Middleware
             services.AddCors();
 
@@ -123,67 +138,43 @@ namespace WebApi
 
             // Register MVC Middleware
             services
-                .AddMvc()
-                .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+                .AddControllers()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
+            services
+                .AddMvcCore()
+                .AddApiExplorer()
+                .SetCompatibilityVersion(CompatibilityVersion.Version_3_0);
 
             // Register the Swagger generator, defining 1 or more Swagger documents
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new Info { Title = "ZC Tea Web Store API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "ZC Tea Web Store API", Version = "v1" });
 
                 var xmlCommentsFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
                 var xmlCommentsFullPath = Path.Combine(AppContext.BaseDirectory, xmlCommentsFile);
                 options.IncludeXmlComments(xmlCommentsFullPath);
 
-                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new ApiKeyScheme
+                options.AddSecurityDefinition(JwtBearerDefaults.AuthenticationScheme, new OpenApiSecurityScheme
                 {
-                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\"",
+                    Type = SecuritySchemeType.ApiKey,
                     Name = "Authorization",
-                    In = "header",
-                    Type = "apiKey"
+                    In = ParameterLocation.Header,
+                    Description = "JWT Authorization header using the Bearer scheme. Example: \"Authorization: Bearer {token}\""
                 });
 
                 options.OperationFilter<SecurityRequirementsOperationFilter>(true, JwtBearerDefaults.AuthenticationScheme);
             });
-
-            // Register and configure strongly typed settings objects
-            var appSettingsSection = Configuration.GetSection("AppSettings");
-            services.Configure<AppSettings>(appSettingsSection);
-
-            // Register and configure JWT Authentication
-            var appSettings = appSettingsSection.Get<AppSettings>();
-            var key = Encoding.ASCII.GetBytes(appSettings.Secret);
-            services
-                .AddAuthentication(options =>
-                {
-                    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-                    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-                })
-                .AddJwtBearer(options =>
-                {
-                    options.RequireHttpsMetadata = false;
-                    options.SaveToken = true;
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        ValidateIssuerSigningKey = true,
-                        IssuerSigningKey = new SymmetricSecurityKey(key),
-                        ValidateIssuer = false,
-                        ValidateAudience = false
-                    };
-                });
         }
 
         /// <summary>
         /// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         /// </summary>
         /// <param name="app">Application Builder Interface</param>
-        /// <param name="env">Hosting Environment Interface</param>
+        /// <param name="env">Web Host Environment Interface</param>
+        /// <param name="service">Service Provider Interface</param>
         /// <param name="autoMapper">AutoMapper Interface</param>
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, IMapper autoMapper)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider service, IMapper autoMapper)
         {
-            // Configure AutoMapper
-            autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
-
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -194,14 +185,29 @@ namespace WebApi
                 app.UseHsts();
             }
 
+            // Configure AutoMapper
+            autoMapper.ConfigurationProvider.AssertConfigurationIsValid();
+
+            // Run EF Database Migrations
+            service.GetService<WebStoreContext>().Database.Migrate();
+
             // Enable HTTPS Redirect
             app.UseHttpsRedirection();
 
+            // Enable MVC Routing
+            app.UseRouting();
+
+            // Enable Global CORS Policy
+            app.UseCors(cors =>
+            {
+                cors
+                  .AllowAnyOrigin()
+                  .AllowAnyMethod()
+                  .AllowAnyHeader();
+            });
+
             // Enable Standard Error Responses
             app.UseStatusCodePagesWithReExecute("/Errors/{0}");
-
-            // Enable Standard Health Checks
-            app.UseHealthChecks("/health");
 
             // Enable Response Caching
             app.UseResponseCaching();
@@ -220,17 +226,16 @@ namespace WebApi
                 options.RoutePrefix = string.Empty;
             });
 
-            // global cors policy
-            app.UseCors(cors =>
-            {
-                cors
-                  .AllowAnyOrigin()
-                  .AllowAnyMethod()
-                  .AllowAnyHeader();
-            });
-
+            // Enable Auth
             app.UseAuthentication();
-            app.UseMvc();
+            app.UseAuthorization();
+
+            // Enable Controller Endpoints
+            app.UseEndpoints(endpoints =>
+            {
+                endpoints.MapControllers();
+                endpoints.MapHealthChecks("/health");
+            });
         }
     }
 }

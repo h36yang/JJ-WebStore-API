@@ -176,12 +176,13 @@
             </summary>
             <param name="services">Service Collection Interface</param>
         </member>
-        <member name="M:WebApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IHostingEnvironment,AutoMapper.IMapper)">
+        <member name="M:WebApi.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment,System.IServiceProvider,AutoMapper.IMapper)">
             <summary>
             This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
             </summary>
             <param name="app">Application Builder Interface</param>
-            <param name="env">Hosting Environment Interface</param>
+            <param name="env">Web Host Environment Interface</param>
+            <param name="service">Service Provider Interface</param>
             <param name="autoMapper">AutoMapper Interface</param>
         </member>
         <member name="T:WebApi.ViewModelMappers.AutoMapperExtensions">
