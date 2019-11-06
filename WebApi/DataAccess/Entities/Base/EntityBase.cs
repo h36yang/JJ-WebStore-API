@@ -4,6 +4,9 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace WebApi.DataAccess.Entities
 {
+    /// <summary>
+    /// Entity Base Class
+    /// </summary>
     public abstract class EntityBase : IEntityBase
     {
         [Key, DatabaseGenerated(DatabaseGeneratedOption.Identity)]
@@ -12,5 +15,10 @@ namespace WebApi.DataAccess.Entities
         public DateTimeOffset CreatedOn { get; set; }
 
         public DateTimeOffset UpdatedOn { get; set; }
+
+        /// <summary>
+        /// Protected Constructor to avoid instantiate Abstract Class directly
+        /// </summary>
+        protected EntityBase() { }
     }
 }

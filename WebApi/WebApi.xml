@@ -154,6 +154,27 @@
             </summary>
             <returns>Action Result of a list of Users</returns>
         </member>
+        <member name="T:WebApi.DataAccess.Entities.EntityBase">
+            <summary>
+            Entity Base Class
+            </summary>
+        </member>
+        <member name="M:WebApi.DataAccess.Entities.EntityBase.#ctor">
+            <summary>
+            Protected Constructor to avoid instantiate Abstract Class directly
+            </summary>
+        </member>
+        <member name="T:WebApi.DataAccess.EntityMaps.BaseEntityMap`1">
+            <summary>
+            Base Entity Map Class
+            </summary>
+            <typeparam name="TEntity">A class type that implements IEntityBase</typeparam>
+        </member>
+        <member name="M:WebApi.DataAccess.EntityMaps.BaseEntityMap`1.#ctor">
+            <summary>
+            Protected Constructor to avoid instantiate Abstract Class directly
+            </summary>
+        </member>
         <member name="T:WebApi.Startup">
             <summary>
             Application Startup Class
@@ -227,6 +248,11 @@
         <member name="P:WebApi.ViewModels.BaseViewModel.UpdatedOn">
             <summary>
             Date and time the entity is last updated on
+            </summary>
+        </member>
+        <member name="M:WebApi.ViewModels.BaseViewModel.#ctor">
+            <summary>
+            Protected Constructor to avoid instantiate Abstract Class directly
             </summary>
         </member>
         <member name="T:WebApi.ViewModels.IViewModel">
@@ -361,6 +387,11 @@
             List of Product Functions
             </summary>
         </member>
+        <member name="M:WebApi.ViewModels.ProductBaseVM.#ctor">
+            <summary>
+            Protected Constructor to avoid instantiate Abstract Class directly
+            </summary>
+        </member>
         <member name="T:WebApi.ViewModels.ProductForUpdateVM">
             <summary>
             Product for Update View Model Class
@@ -414,6 +445,11 @@
         <member name="P:WebApi.ViewModels.UserBaseVM.IsActive">
             <summary>
             Whether or not the user is active
+            </summary>
+        </member>
+        <member name="M:WebApi.ViewModels.UserBaseVM.#ctor">
+            <summary>
+            Protected Constructor to avoid instantiate Abstract Class directly
             </summary>
         </member>
         <member name="T:WebApi.ViewModels.UserForUpdateVM">

@@ -21,5 +21,10 @@ namespace WebApi.ViewModels
         /// Date and time the entity is last updated on
         /// </summary>
         public DateTimeOffset UpdatedOn { get; set; }
+
+        /// <summary>
+        /// Protected Constructor to avoid instantiate Abstract Class directly
+        /// </summary>
+        protected BaseViewModel() { }
     }
 }

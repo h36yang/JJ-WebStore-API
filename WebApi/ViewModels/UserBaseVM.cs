@@ -25,5 +25,10 @@ namespace WebApi.ViewModels
         /// </summary>
         [Required]
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// Protected Constructor to avoid instantiate Abstract Class directly
+        /// </summary>
+        protected UserBaseVM() { }
     }
 }

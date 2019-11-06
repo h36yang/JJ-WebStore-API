@@ -34,20 +34,18 @@ namespace WebApi.Services
 
         public async Task<ImageVM> UploadAsync(string name, IFormFile file)
         {
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                OptimizeImageStream(stream);
-                var fileBytes = stream.ToArray();
+            using var stream = new MemoryStream();
+            await file.CopyToAsync(stream);
+            OptimizeImageStream(stream);
+            var fileBytes = stream.ToArray();
 
-                var dbImage = new Image()
-                {
-                    Name = name,
-                    Data = fileBytes
-                };
-                await _imageRepository.AddAsync(dbImage);
-                return _mapper.Map<Image, ImageVM>(dbImage);
-            }
+            var dbImage = new Image()
+            {
+                Name = name,
+                Data = fileBytes
+            };
+            await _imageRepository.AddAsync(dbImage);
+            return _mapper.Map<Image, ImageVM>(dbImage);
         }
 
         private bool OptimizeImageStream(Stream imageStream)

@@ -95,5 +95,10 @@ namespace WebApi.ViewModels
         /// List of Product Functions
         /// </summary>
         public List<ProductFunctionVM> Functions { get; set; }
+
+        /// <summary>
+        /// Protected Constructor to avoid instantiate Abstract Class directly
+        /// </summary>
+        protected ProductBaseVM() { }
     }
 }
